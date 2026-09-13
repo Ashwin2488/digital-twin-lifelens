@@ -27,9 +27,9 @@ export async function buildCustomerIntelligence(profile, scenario) {
 
 export function deriveFeatures(profile){
   const txs=profile.transactions; const by=c=>txs.filter(t=>t.category===c); const sum=c=>Math.abs(by(c).reduce((n,t)=>n+t.amount,0));
-  const income=by("income").map(t=>t.amount).filter(v=>v>0); const payroll=by("income").filter(t=>/PAYROLL|SALARY/.test(t.description)&&t.amount>0).map(t=>t.amount); const recentIncome=income.at(-1)||0;
-  const dates=txs.map(t=>t.date).sort();
-  return { transactionWindowDays:daysBetween(dates[0],dates.at(-1)), childcareRecurringMonths:new Set(by("childcare").map(t=>t.date.slice(0,7))).size, babySpendTotal:sum("baby"), babySpendGrowth:438-84, missingPayrollCycles:txs.filter(t=>t.description==="NO PAYROLL RECEIVED").length, priorPayrollAverage:payroll.length?Math.round(payroll.reduce((a,b)=>a+b,0)/payroll.length):0, recentObservedIncome:recentIncome, weddingSpend90d:sum("wedding"), partnerContributionMonths:new Set(by("partnerTransfer").map(t=>t.date.slice(0,7))).size, partnerContributions:by("partnerTransfer").reduce((n,t)=>n+t.amount,0), monthlySurplus:profile.persona.monthlyIncome-profile.baseline.avgMonthlySpend, protectionGap:Math.max(0,profile.baseline.estimatedProtectionNeed-profile.baseline.protectionCover), emergencyFundMonths:profile.baseline.emergencyFundMonths, transactionCount:txs.length };
+  const income=by("income").map(t=>t.amount).filter(v=>v>0); const payroll=by("income").filter(t=>isPayroll(t)&&t.amount>0).map(t=>t.amount); const recentIncome=income.at(-1)||0;
+  const dates=txs.map(t=>t.date||t.postDate).sort();
+  return { transactionWindowDays:daysBetween(dates[0],dates.at(-1)), childcareRecurringMonths:new Set(by("childcare").map(t=>(t.date||t.postDate).slice(0,7))).size, babySpendTotal:sum("baby"), babySpendGrowth:categorySpendGrowth(txs,"baby"), missingPayrollCycles:countMissingPayrollCycles(txs), priorPayrollAverage:payroll.length?Math.round(payroll.reduce((a,b)=>a+b,0)/payroll.length):0, recentObservedIncome:recentIncome, weddingSpend90d:sum("wedding"), partnerContributionMonths:new Set(by("partnerTransfer").map(t=>(t.date||t.postDate).slice(0,7))).size, partnerContributions:by("partnerTransfer").reduce((n,t)=>n+t.amount,0), monthlySurplus:profile.persona.monthlyIncome-profile.baseline.avgMonthlySpend, protectionGap:Math.max(0,profile.baseline.estimatedProtectionNeed-profile.baseline.protectionCover), emergencyFundMonths:profile.baseline.emergencyFundMonths, transactionCount:txs.length, accountCount:new Set(txs.map(t=>t.accountId).filter(Boolean)).size };
 }
 
 function detectLifeEvent(profile,scenario,f){
@@ -43,3 +43,37 @@ function rankEligibleProducts(profile,f){return profile.candidates.map(p=>{const
 function deterministicInsights(profile,event,products,features){return { persona:profile.persona,baseline:profile.baseline,transactions:profile.transactions,features,event,products,ai:{executiveSummary:`${event.label} detected at ${Math.round(event.confidence*100)}% confidence from ${event.evidence.length} independent signals. Review changing needs before discussing products.`,conversationOpener:`I noticed a few changes in your recent financial patterns and wanted to understand whether your priorities have changed.`,discoveryQuestions:["What has changed most in your financial priorities?","How much monthly flexibility would feel comfortable?","Which goal matters most over the next 12 months?"],productNarratives:Object.fromEntries(products.map(p=>[p.name,p.reason]))}}}
 function e(label,value,source,confidence){return{label,value,source,confidence}}
 function daysBetween(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000))}
+function merchantOf(t){return t.merchantRaw||t.description||""}
+function isPayroll(t){return t.amount>0&&/PAYROLL|SALARY/i.test(merchantOf(t))&&!/SEVERANCE|HR PAYOUT/i.test(merchantOf(t))}
+function categorySpendGrowth(txs,category){
+  const byMonth={};
+  for (const t of txs){
+    if (t.category!==category||t.amount>=0) continue;
+    const month=(t.date||t.postDate).slice(0,7);
+    byMonth[month]=(byMonth[month]||0)+Math.abs(t.amount);
+  }
+  const months=Object.keys(byMonth).sort();
+  if (months.length<2) return 0;
+  return Math.round(byMonth[months.at(-1)]-byMonth[months[0]]);
+}
+function countMissingPayrollCycles(txs){
+  const payroll=txs.filter(isPayroll);
+  if (!payroll.length) return 0;
+  const monthOf=t=>(t.date||t.postDate).slice(0,7);
+  const first=payroll.map(monthOf).sort()[0];
+  const last=txs.map(monthOf).sort().at(-1);
+  const have=new Set(payroll.map(monthOf));
+  let missing=0;
+  for (const month of monthsInclusive(first,last)) if (!have.has(month)) missing+=1;
+  return missing;
+}
+function monthsInclusive(start,end){
+  const out=[];
+  const cursor=new Date(`${start}-01T00:00:00Z`);
+  const stop=new Date(`${end}-01T00:00:00Z`);
+  while (cursor<=stop){
+    out.push(cursor.toISOString().slice(0,7));
+    cursor.setUTCMonth(cursor.getUTCMonth()+1);
+  }
+  return out;
+}

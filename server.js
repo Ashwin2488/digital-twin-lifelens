@@ -8,6 +8,7 @@ import { buildBranchingProjection, projectWithActions } from "./agents/projectio
 import { answerAsFutureYou } from "./agents/future_you.js";
 import { customerProfiles } from "./data/customer_profiles.js";
 import { buildCustomerIntelligence } from "./agents/intelligence.js";
+import { getHoldoutById, holdoutSummary } from "./data/holdout.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,6 +88,24 @@ app.get("/api/intelligence/:id", async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Customer intelligence pipeline failed." });
   }
+});
+
+app.get("/api/holdout", (_req, res) => {
+  res.json(holdoutSummary());
+});
+
+app.get("/api/ledgers/:id", (req, res) => {
+  const profile = customerProfiles[req.params.id];
+  if (profile) {
+    return res.json({
+      id: req.params.id,
+      split: "hero",
+      transactions: profile.transactions,
+    });
+  }
+  const holdout = getHoldoutById(req.params.id);
+  if (holdout) return res.json(holdout);
+  return res.status(404).json({ error: "Ledger not found." });
 });
 
 app.post("/api/future-you", async (req, res) => {

@@ -18,6 +18,13 @@ dist/
 build/
 coverage/
 .cache/
+.next/
+out/
+test-results/
+playwright-report/
+blob-report/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Editors and operating systems
 .DS_Store

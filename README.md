@@ -31,13 +31,36 @@ The RM Today view also includes an illustrative pilot-impact strip for consented
 
 ## Intelligence pipeline
 
-Raw demo transactions are converted into auditable features such as payroll interruption, recurring merchant counts, category acceleration, protection gaps, and cashflow surplus. A weighted detector derives the life-event hypothesis and retains an alternative explanation. Deterministic eligibility rules then remove unsuitable products before OpenAI generates grounded explanations and RM conversation guidance. OpenAI never calculates projection values or overrides suitability decisions.
+Raw statement lines are classified, then converted into auditable features such as payroll interruption, recurring merchant counts, category acceleration, protection gaps, and cashflow surplus. A weighted detector derives the life-event hypothesis and retains an alternative explanation. Deterministic eligibility rules then remove unsuitable products before OpenAI generates grounded explanations and RM conversation guidance. OpenAI never calculates projection values or overrides suitability decisions.
 
 Click **View signal evidence** in the dashboard to inspect the customer persona, source transactions, derived evidence, alternative hypothesis, product guardrails, model name, and whether the result came from live OpenAI or the verified fallback.
 
 Set a valid `OPENAI_API_KEY` in `.env` to enable live insight narration. If the key is absent or rejected, the same endpoint returns deterministic evidence-backed copy and the UI explicitly displays **Verified fallback**.
 
 The simulation is deterministic and continues to work without external AI. The interface is responsive for desktop and tablet demos.
+
+## Stack
+
+The runnable demo is the Express + vanilla SPA (`server.js`, `public/`). `npm run dev` starts that app on port 3000. If that port is already in use:
+
+```bash
+PORT=3011 npm run dev
+```
+
+Then open `http://localhost:3011`.
+
+The incomplete Next.js port (`src/`) and Playwright e2e were removed. `npm test` is vitest against `data/` and `agents/` only.
+
+## Banking-shaped mock data
+
+Hero and holdout ledgers are authored as statement lines (`postDate`, `merchantRaw`, MCC, channel, account), not pre-labelled categories. `data/classifyMerchant.js` assigns category. Payroll gaps are inferred from missing GIRO months — banks do not post a `NO PAYROLL RECEIVED` row.
+
+- `GET /api/holdout` — labelled unseen-customer summary (precision/recall set for the next detection rewrite)
+- `GET /api/ledgers/:id` — full statement for a hero (`new-parent` / `job-loss` / `wedding`) or holdout id (`h-np-01`, `h-hp-01`, …)
+
+```bash
+npm test
+```
 
 ## Environment variables
 
@@ -66,6 +89,12 @@ Open `http://localhost:3000`.
 
 ## Structure
 
+- `data/transactionSchema.js` — statement-line schema and running balances
+- `data/classifyMerchant.js` — merchant/MCC → category (no author labels)
+- `data/heroLedgers.js` — Amira / Daniel / Priya 6-month multi-account ledgers
+- `data/ledgerFactory.js` — unseen synthetic customers + statement noise
+- `data/holdout.js` — 24 labelled customers, including events the detector does not yet score
+- `data/customer_profiles.js` — hero personas, products, classified transactions
 - `data/scenarios.js` — customer event signals and cashflow inputs
 - `agents/projection.js` — deterministic 12-month scenario engine
 - `public/app.js` — RM dashboard interactions and live solution modeling
