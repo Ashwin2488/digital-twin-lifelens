@@ -282,6 +282,50 @@ blocks, just not gated by a caller-supplied id).
 `primary.type` to `groundTruth.type` — report precision/recall per event type, not "it feels
 right." This is the number that answers the eval's core question.
 
+### 5.4 Confidence breakdown (Wow gap #5 — score must be explainable, not just displayed)
+
+`detectLifeEvents()`'s evidence items today (see the existing `e(label, value, source,
+confidence)` helper) carry a per-item *evidence confidence*, but not the *score contribution* that
+item added to the final number. Extend the evidence shape:
+
+```ts
+EvidenceItem {
+  label, value, source: string
+  confidence: number        // existing — how sure we are this evidence is real
+  scoreWeight: number       // new — how many points this item added to the total
+}
+```
+`sum(evidence.scoreWeight) === event.confidence` (capped). The evidence dialog (existing, RM side)
+renders this as a bar breakdown: "Recurring childcare +48% · Baby-category acceleration +28% ·
+Profile update +15% = 91%." No new data needed — this is a shape change on data the detector
+already computes internally as local variables (`score += .48` etc.) but currently discards.
+
+### 5.5 Ad-hoc / live detection (Wow gap #3 — prove it's not hardcoded, live)
+
+New entry point that skips Customer 360 entirely and proves the detection layer is decoupled from
+demo-authored personas:
+
+```
+POST /api/detect/adhoc
+body: { transactions: [{ postDate, merchantRaw, amount, mcc? }, ...] }
+→ classifyMerchant() each row → deriveFeatures() → detectLifeEvents() → same evidence shape as §5.4
+```
+No persona, no product ranking (no consent/risk-profile fields to check eligibility against) —
+just classification → features → detection → evidence. This is intentionally the smallest possible
+slice of the pipeline, which is what makes it safe to expose for a live judge-pasted CSV without
+touching any other domain.
+
+### 5.6 Before/after comparison mode (Wow gap #6 — demo narrative)
+
+Keep the current `if(scenario.id===...)` implementation as `legacyDetectLifeEvent()` (renamed, not
+deleted) purely as a demo reference point once §5's generalized `detectLifeEvents()` ships. A demo
+toggle runs both against the same holdout customer and shows: legacy returns nothing/wrong for a
+non-hero id, generalized returns ranked evidence. This turns the architecture diff itself into the
+pitch's strongest 30 seconds.
+
+No `DETECTOR=` env flag. Live path is always the generalized scorer. Rollback is `git reset --hard
+checkpoint-ws1`. `legacyDetectLifeEvent()` exists only for this before/after toggle.
+
 ## 6. LLM integration architecture
 
 ### 6.1 Provider adapter (planned — `agents/llmProvider.js`)
@@ -339,47 +383,6 @@ classified txns → LLM proposes hypotheses (cited txn ids, no confidence) →
 Useful specifically for merchants `classifyMerchant()` falls back to `"uncategorized"` on — the
 LLM can suggest a category with a citation, subject to the same scorer validation, rather than the
 detector silently ignoring unknown spend.
-
-### 5.4 Confidence breakdown (Wow gap #5 — score must be explainable, not just displayed)
-
-`detectLifeEvents()`'s evidence items today (see the existing `e(label, value, source,
-confidence)` helper) carry a per-item *evidence confidence*, but not the *score contribution* that
-item added to the final number. Extend the evidence shape:
-
-```ts
-EvidenceItem {
-  label, value, source: string
-  confidence: number        // existing — how sure we are this evidence is real
-  scoreWeight: number       // new — how many points this item added to the total
-}
-```
-`sum(evidence.scoreWeight) === event.confidence` (capped). The evidence dialog (existing, RM side)
-renders this as a bar breakdown: "Recurring childcare +48% · Baby-category acceleration +28% ·
-Profile update +15% = 91%." No new data needed — this is a shape change on data the detector
-already computes internally as local variables (`score += .48` etc.) but currently discards.
-
-### 5.5 Ad-hoc / live detection (Wow gap #3 — prove it's not hardcoded, live)
-
-New entry point that skips Customer 360 entirely and proves the detection layer is decoupled from
-demo-authored personas:
-
-```
-POST /api/detect/adhoc
-body: { transactions: [{ postDate, merchantRaw, amount, mcc? }, ...] }
-→ classifyMerchant() each row → deriveFeatures() → detectLifeEvents() → same evidence shape as §5.4
-```
-No persona, no product ranking (no consent/risk-profile fields to check eligibility against) —
-just classification → features → detection → evidence. This is intentionally the smallest possible
-slice of the pipeline, which is what makes it safe to expose for a live judge-pasted CSV without
-touching any other domain.
-
-### 5.6 Before/after comparison mode (Wow gap #6 — demo narrative)
-
-Keep the current `if(scenario.id===...)` implementation as `legacyDetectLifeEvent()` (renamed, not
-deleted) purely as a demo reference point once §5's generalized `detectLifeEvents()` ships. A demo
-toggle runs both against the same holdout customer and shows: legacy returns nothing/wrong for a
-non-hero id, generalized returns ranked evidence. This turns the architecture diff itself into the
-pitch's strongest 30 seconds.
 
 ### 6.4 Holdout evaluation surfaced in-app (Wow gap #2)
 
