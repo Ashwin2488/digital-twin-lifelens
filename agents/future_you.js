@@ -1,60 +1,72 @@
-import OpenAI from "openai";
 import { formatMoney, projectScenario } from "./projection.js";
+import { assertNarrationGrounded, collectAllowedAmounts } from "./narrationGuard.js";
+import { completeText, getLlmMeta, isLlmEnabled } from "./llmProvider.js";
 
-const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
-const client = process.env.OPENAI_API_KEY ? new OpenAI() : null;
-
+const MAX_SESSIONS = 500;
 const sessionMemory = new Map();
+
+export function resetSessionMemory() {
+  sessionMemory.clear();
+}
 
 export async function answerAsFutureYou({ scenario, projection, question, sessionId }) {
   const memoryKey = `${sessionId}:${scenario.id}:${projection.branch}`;
   const history = sessionMemory.get(memoryKey) ?? [];
 
-  if (!client) {
-    const fallback = goldenAnswer({ scenario, projection, question });
-    remember(memoryKey, question, fallback);
+  if (!isLlmEnabled()) {
+    const fallback = goldenSentences({ scenario, projection, question });
+    remember(memoryKey, question, fallback.answer);
     return {
       source: "cached-demo",
-      answer: fallback,
-      traceability: traceabilityPayload(scenario, projection),
+      answer: fallback.answer,
+      sentences: fallback.sentences,
+      traceability: { ...traceabilityPayload(scenario, projection), sentences: fallback.sentences },
     };
   }
 
+  const { model, provider } = getLlmMeta();
   try {
-    const response = await client.responses.create({
-      model,
-      input: [
-        {
-          role: "system",
-          content: buildSystemPrompt(scenario, projection),
-        },
-        ...history.slice(-6),
-        {
-          role: "user",
-          content: question,
-        },
-      ],
+    const answer = await completeText({
+      system: buildSystemPrompt(scenario, projection),
+      user: question,
+      history,
       temperature: 0.55,
-      max_output_tokens: 450,
+      maxTokens: 450,
     });
-
-    const answer = response.output_text?.trim() || goldenAnswer({ scenario, projection, question });
-    remember(memoryKey, question, answer);
-
+    const fallback = goldenSentences({ scenario, projection, question });
+    const text = answer || fallback.answer;
+    const grounded = assertNarrationGrounded(text, {
+      amounts: collectAllowedAmounts({ projection }),
+    });
+    if (!answer || !grounded.ok) {
+      remember(memoryKey, question, fallback.answer);
+      return {
+        source: "cached-demo-fallback",
+        model,
+        warning: !answer ? "Empty LLM response." : "LLM introduced amounts not in the projection.",
+        answer: fallback.answer,
+        sentences: fallback.sentences,
+        traceability: { ...traceabilityPayload(scenario, projection), sentences: fallback.sentences },
+      };
+    }
+    remember(memoryKey, question, text);
+    const sentences = [{ text, cite: "projection" }];
     return {
-      source: "openai",
+      source: provider,
       model,
-      answer,
-      traceability: traceabilityPayload(scenario, projection),
+      answer: text,
+      sentences,
+      traceability: { ...traceabilityPayload(scenario, projection), sentences },
     };
   } catch (error) {
-    const fallback = goldenAnswer({ scenario, projection, question });
-    remember(memoryKey, question, fallback);
+    const fallback = goldenSentences({ scenario, projection, question });
+    remember(memoryKey, question, fallback.answer);
     return {
       source: "cached-demo-fallback",
-      warning: error instanceof Error ? error.message : "OpenAI request failed.",
-      answer: fallback,
-      traceability: traceabilityPayload(scenario, projection),
+      warning: error instanceof Error ? error.message : "LLM request failed.",
+      answer: fallback.answer,
+      sentences: fallback.sentences,
+      traceability: { ...traceabilityPayload(scenario, projection), sentences: fallback.sentences },
     };
   }
 }
@@ -77,6 +89,7 @@ export function buildSystemPrompt(scenario, projection) {
     "Open with: 'Simulated projection only, not financial advice.'",
     "Speak in first person narrative as the customer's future self. Do not give prescriptive financial advice.",
     `Customer: ${scenario.customer}.`,
+    scenario.userIntent ? `What they told you: ${scenario.userIntent}` : "",
     `Detected event: ${scenario.event.label} (${scenario.event.type}), confidence ${Math.round(
       scenario.event.confidence * 100,
     )}%, detected in ${scenario.event.detectedMonth}.`,
@@ -95,20 +108,40 @@ export function buildSystemPrompt(scenario, projection) {
     }.`,
     `Explainer signal trace:\n${scenario.trace.map((item) => `- ${item}`).join("\n")}`,
     `Monthly projection facts:\n${facts}`,
-  ].join("\n\n");
+  ].filter(Boolean).join("\n\n");
 }
 
 function remember(memoryKey, question, answer) {
   const history = sessionMemory.get(memoryKey) ?? [];
   history.push({ role: "user", content: question });
   history.push({ role: "assistant", content: answer });
+  sessionMemory.delete(memoryKey); // re-insert to mark as most-recently-used
   sessionMemory.set(memoryKey, history.slice(-8));
+  if (sessionMemory.size > MAX_SESSIONS) sessionMemory.delete(sessionMemory.keys().next().value); // evict LRU
 }
 
 function goldenAnswer({ scenario, projection, question }) {
+  return goldenSentences({ scenario, projection, question }).answer;
+}
+
+function goldenSentences({ scenario, projection, question }) {
   const tailored = questionSpecificAnswer({ scenario, projection, question });
-  if (tailored) return tailored;
-  return defaultGoldenAnswer({ scenario, projection, question });
+  const text = tailored || defaultGoldenAnswer({ scenario, projection, question });
+  const sentences = String(text)
+    .split(/(?<=\.)\s+/)
+    .filter(Boolean)
+    .map((line) => ({ text: line, cite: citeForSentence(line, scenario, projection) }));
+  return { answer: sentences.map((row) => row.text).join(" "), sentences };
+}
+
+function citeForSentence(text, scenario, projection) {
+  if (/not financial advice/i.test(text)) return "disclaimer";
+  if (/overdraft|below zero/i.test(text)) return "overdraftMonth";
+  if (/lowest|thinnest/i.test(text)) return "minBalance";
+  if (/starting|ending|balance moved|S\$|\$/i.test(text) && /balance/i.test(text)) return "summary";
+  if ((scenario.trace || []).some((row) => text.includes(String(row).slice(0, 24)))) return "signalTrace";
+  if ((projection.acceptedActions || []).some((a) => text.includes(a.label))) return "actions";
+  return "projection";
 }
 
 function normalizeQuestion(question) {

@@ -33,7 +33,13 @@
           <span aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/><path d="M5.6 5.6l2.1 2.1"/><path d="M16.3 16.3l2.1 2.1"/><path d="M18.4 5.6l-2.1 2.1"/><path d="M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.25"/></svg>
           </span>
-          <small>Play Future</small>
+          <small>Future You</small>
+        </a>
+        <a class="nav-item" href="/developer" data-view="developer" aria-label="Developer">
+          <span aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l-6-6 6-6"/><path d="M15 6l6 6-6 6"/></svg>
+          </span>
+          <small>Developer</small>
         </a>
       </nav>
       <div class="side-bottom">
@@ -95,14 +101,6 @@
           </div>
         </section>
 
-        <section class="business-proof card" aria-label="Illustrative business impact">
-          <div><p class="eyebrow">LIFELENS BUSINESS IMPACT · PILOT VIEW</p><h3>Customer play becomes qualified RM action.</h3><small>Illustrative metrics for hackathon demonstration</small></div>
-          <div><span>CONSENTED INTENT SIGNALS</span><strong>18</strong><small>this month</small></div>
-          <div><span>RM PREP TIME SAVED</span><strong>6.4h</strong><small>evidence + brief generated</small></div>
-          <div><span>QUALIFIED PIPELINE</span><strong>S$42.8K</strong><small>estimated annual value</small></div>
-          <div><span>MEETING CONVERSION</span><strong>+14%</strong><small>pilot target uplift</small></div>
-        </section>
-
         <section class="section-head">
           <div>
             <p class="eyebrow">PRIORITY MOMENTS</p>
@@ -138,14 +136,94 @@
                 <div><span>LOWEST BALANCE</span><strong id="homeLowest">—</strong></div>
                 <div><span>RISK WINDOW</span><strong id="homeRisk">—</strong></div>
               </div>
-              <button class="primary-button" id="homeOpenTwin" type="button"><span>✦</span> Open full twin</button>
+              <button class="primary-button" id="homeOpenTwin" type="button"><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.8L12 2z"/></svg></span> Open full twin</button>
             </div>
           </div>
+        </section>
+
+        <section class="handoff-board card" aria-label="Consented customer shares">
+          <div class="card-head"><div><p class="eyebrow">CONSENTED HANDOFF</p><h2>Plans shared with Jamie</h2></div></div>
+          <div id="handoffQueue"></div>
+        </section>
+      </div>
+
+      <!-- DEVELOPER: diagnostics, holdout eval, live lab, session log — moved off the RM's daily screen -->
+      <div id="view-developer" class="app-view" data-view-panel="developer" hidden>
+        <section class="view-intro card">
+          <p class="eyebrow">DEVELOPER</p>
+          <h2>How this actually works</h2>
+          <p>Diagnostics for judges and engineers. Nothing here is shown to an RM's daily workflow.</p>
+        </section>
+
+        <section class="system-status card" aria-label="System status">
+          <div class="card-head"><div><p class="eyebrow">SYSTEM STATUS</p><h2>Is this live or fallback?</h2></div></div>
+          <div class="status-grid" id="systemStatus"></div>
+        </section>
+
+        <section class="business-proof card" aria-label="Detector holdout and illustrative impact">
+          <div>
+            <p class="eyebrow">DETECTOR · UNSEEN CUSTOMERS</p>
+            <h3 id="holdoutEvalHeadline">Measuring life-event detection on 24 holdout ledgers.</h3>
+            <small id="holdoutEvalNote">Precision / recall vs labelled ground truth — not a sales metric</small>
+          </div>
+          <div><span>PRECISION</span><strong id="holdoutPrecision">—</strong><small>predicted events that match labels</small></div>
+          <div><span>RECALL</span><strong id="holdoutRecall">—</strong><small>labelled events the scorer caught</small></div>
+          <div><span>HOLDOUT SIZE</span><strong id="holdoutSize">24</strong><small>8 event types + negatives</small></div>
+          <div><span>QUEUED HANDOFFS</span><strong id="queuedHandoffs">0</strong><small>consented shares this process · not a sales metric</small></div>
+        </section>
+
+        <details class="detector-lab card" aria-label="Live detector lab" open>
+          <summary class="lab-summary"><span class="eyebrow">EXPAND</span><strong>Live paste-your-own-ledger + legacy vs generalized compare</strong></summary>
+          <div class="lab-grid">
+            <div>
+              <p class="eyebrow">LIVE PASTE · NO PERSONA</p>
+              <h2>Run detection on any ledger</h2>
+              <p>Classify → features → score. Nothing is stored. Paste a JSON array, a transactions object, or CSV (postDate, merchantRaw, amount).</p>
+              <textarea id="adhocInput" rows="8" spellcheck="false" placeholder='{"transactions":[{"postDate":"2026-02-04","merchantRaw":"THE ST. REGIS WEDDING","amount":-3800}]}'></textarea>
+              <div class="lab-actions">
+                <button class="secondary-button" type="button" id="adhocSample">Load wedding sample</button>
+                <label class="secondary-button file-button">Upload CSV/JSON<input type="file" id="adhocFile" accept=".csv,.json,text/csv,application/json" hidden /></label>
+                <button class="primary-button" type="button" id="runAdhoc">Run detection</button>
+              </div>
+              <div id="adhocResult" class="lab-result" aria-live="polite"></div>
+            </div>
+            <div>
+              <p class="eyebrow">BEFORE / AFTER</p>
+              <h2>Legacy branch vs generalized</h2>
+              <p>Same ledger. Old detector only fires on prepared hero ids.</p>
+              <label class="lab-label" for="compareId">Customer</label>
+              <select id="compareId">
+                <option value="h-hp-01">Wei Lin Chen · holdout home</option>
+                <option value="h-rt-01">Ethan Teo · holdout retirement</option>
+                <option value="wedding">Priya · wedding hero</option>
+                <option value="new-parent">Amira · new-parent hero</option>
+                <option value="job-loss">Daniel · job-loss hero</option>
+              </select>
+              <div class="lab-actions">
+                <button class="primary-button" type="button" id="runCompare">Compare detectors</button>
+                <button class="text-button" type="button" id="demoReset">Reset demo state</button>
+              </div>
+              <div id="compareResult" class="lab-compare" aria-live="polite"></div>
+            </div>
+          </div>
+        </details>
+
+        <section class="session-log card" aria-label="Session activity log">
+          <div class="card-head"><div><p class="eyebrow">SESSION ACTIVITY</p><h2>What's happened this process</h2></div></div>
+          <div id="sessionLog"></div>
         </section>
       </div>
 
       <!-- CLIENT 360: twin-first deep dive -->
       <div id="view-client" class="app-view" data-view-panel="client" hidden>
+        <section class="empty-invite card" id="twinEmptyState" hidden aria-label="Customer has not engaged Future You">
+          <div>
+            <p class="eyebrow">NOT YET EXPLORED</p>
+            <h3 id="twinEmptyTitle">This customer hasn't explored their own Future You yet.</h3>
+            <p>Simulating on their behalf still works below — but consider inviting them first so their own choices drive the plan.</p>
+          </div>
+          <button class="primary-button" id="twinEmptyInvite" type="button"><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.8L12 2z"/></svg></span> Email a playable link</button>
+        </section>
         <button class="back-link" id="backToToday" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
           Back to Today
@@ -167,7 +245,7 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.87 1.22 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/><path d="M12.04 2C6.5 2 2.01 6.48 2.01 12c0 1.77.46 3.45 1.28 4.92L2 22l5.25-1.38A9.96 9.96 0 0012.04 22C17.56 22 22 17.52 22 12S17.56 2 12.04 2zm0 18.15c-1.59 0-3.08-.43-4.36-1.18l-.31-.19-3.11.82.83-3.04-.2-.32A8.12 8.12 0 013.9 12c0-4.48 3.65-8.12 8.14-8.12 4.48 0 8.12 3.64 8.12 8.12 0 4.49-3.64 8.15-8.12 8.15z"/></svg>
                     WhatsApp
                   </a>
-                  <button class="contact-btn email-future" id="emailFutureLink" type="button"><span aria-hidden="true">✦</span> Email playable link</button>
+                  <button class="contact-btn email-future" id="emailFutureLink" type="button"><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.8L12 2z"/></svg></span> Email playable link</button>
                   <span class="contact-phone" id="customerPhone" hidden></span>
                 </div>
               </div>
@@ -260,7 +338,7 @@
             </div>
 
             <div class="twin-foot">
-              <button class="primary-button" id="generateBrief"><span>✦</span> Generate meeting brief</button>
+              <button class="primary-button" id="generateBrief"><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.8L12 2z"/></svg></span> Generate meeting brief</button>
               <p class="fine-print">Simulation based on observed cashflow. Not a credit decision.</p>
             </div>
           </article>
@@ -284,6 +362,7 @@
             <details class="client-details card snapshot-card">
               <summary>Client snapshot</summary>
               <div class="profile-grid" id="profileGrid"></div>
+              <div class="c360-strip" id="client360"></div>
             </details>
           </aside>
         </section>
@@ -313,10 +392,92 @@
 
       <div id="view-future" class="app-view" data-view-panel="future" hidden>
         <div class="experience-tabs" id="experienceTabs" role="tablist" aria-label="Customer future experiences">
-          <button type="button" class="active" data-experience="game" role="tab" aria-selected="true"><b>01</b><span><strong>Life Game</strong><small>Play through 12 months</small></span></button>
-          <button type="button" data-experience="canvas" role="tab" aria-selected="false"><b>02</b><span><strong>Future Canvas</strong><small>Build your own what-if future</small></span></button>
+          <button type="button" class="active" data-experience="goal" role="tab" aria-selected="true"><b>01</b><span><strong>Goal Plan</strong><small>Any customer · live levers</small></span></button>
+          <button type="button" data-experience="game" role="tab" aria-selected="false"><b>02</b><span><strong>Life Game</strong><small>Play through 12 months</small></span></button>
+          <button type="button" data-experience="canvas" role="tab" aria-selected="false"><b>03</b><span><strong>Future Canvas</strong><small>Fun mode</small></span></button>
+          <label class="fun-mode-toggle"><input type="checkbox" id="funMode" /> Fun mode</label>
         </div>
-        <div id="gameExperience" class="experience-panel active">
+        <div id="goalExperience" class="experience-panel active">
+          <section class="twin-talk card">
+            <p class="eyebrow">TALK TO YOUR TWIN</p>
+            <h2>Tell it what you’re becoming</h2>
+            <p>Type in plain language. The model extracts a goal; the numbers still come from the same deterministic engine.</p>
+            <form class="intent-form" id="intentForm">
+              <textarea id="intentInput" rows="3" placeholder="I am going to be a parent… I want to buy a home in 3 years and save $50k…"></textarea>
+              <div class="intent-chips" id="intentSamples">
+                <button type="button" data-intent="I am going to be a parent">I am going to be a parent</button>
+                <button type="button" data-intent="I want to buy a home in 3 years and save $50k">I want to buy a home</button>
+                <button type="button" data-intent="I am getting married next year">I am getting married</button>
+              </div>
+              <button class="primary-button" type="submit" id="intentSend">Show me that future</button>
+            </form>
+            <p class="cite-chip" id="intentNote"></p>
+            <section class="future-chat goal-chat"><div class="chat-thread" id="futureThread" aria-live="polite"></div><form class="chat-compose" id="futureForm"><input id="futureInput" type="text" placeholder="Ask a follow-up, or keep talking about that future…" autocomplete="off" /><button class="primary-button" type="submit" id="futureSend">Ask</button></form></section>
+            <div class="branch-toggle" id="futureBranch" role="group" aria-label="Projection path"><button type="button" class="branch-btn active" data-branch="ignored">Without my moves</button><button type="button" class="branch-btn" data-branch="accepted">With my moves</button></div>
+            <div class="suggest-list" id="futureSuggestions"></div>
+          </section>
+          <section class="goal-plan card">
+            <div class="goal-plan-head">
+              <div>
+                <p class="eyebrow">DIGITAL TWIN · ANY CUSTOMER</p>
+                <h2>Set a goal. Drag a lever. Watch the path move.</h2>
+                <p>Same deterministic engine as the RM 12-month chart. No persona required — holdout ledgers work.</p>
+              </div>
+              <div>
+              <label class="lab-label" for="goalCustomer">Customer
+                <select id="goalCustomer">
+                  <option value="h-hp-01">Wei Lin Chen · holdout home</option>
+                  <option value="new-parent">Amira Malik · new parent</option>
+                  <option value="job-loss">Daniel Tan · job loss</option>
+                  <option value="wedding">Priya Shah · wedding</option>
+                  <option value="h-none-01">Omar Sim · holdout none</option>
+                </select>
+              </label>
+              <button class="secondary-button" type="button" id="shareGoalPlan">Share plan with RM</button>
+              </div>
+            </div>
+            <div class="goal-plan-grid">
+              <form id="goalForm" class="goal-controls">
+                <label class="lab-label" for="goalType">Goal type
+                  <select id="goalType">
+                    <option value="emergency">Emergency buffer</option>
+                    <option value="home">Home deposit</option>
+                    <option value="wedding">Wedding / event</option>
+                    <option value="savings">General savings</option>
+                  </select>
+                </label>
+                <label class="lab-label" for="goalAmount">Target amount (SGD)
+                  <input id="goalAmount" type="number" min="1000" step="500" value="40000" />
+                </label>
+                <label class="lab-label" for="goalDate">Target date
+                  <input id="goalDate" type="date" value="2027-09-01" />
+                </label>
+                <label class="lab-label" for="goalCut">Discretionary spend cut <b id="goalCutLabel">0%</b>
+                  <input id="goalCut" type="range" min="0" max="40" value="0" />
+                </label>
+                <label class="lab-label" for="goalExtra">Extra monthly save <b id="goalExtraLabel">S$0</b>
+                  <input id="goalExtra" type="range" min="0" max="2000" step="50" value="0" />
+                </label>
+                <label class="lab-label" for="goalLumpSum"><span id="goalLumpSumLabel">One-off lump sum</span> <b id="goalLumpSumValue">S$0</b>
+                  <input id="goalLumpSum" type="range" min="0" max="20000" step="500" value="0" />
+                </label>
+              </form>
+              <div>
+                <div class="goal-stats" id="goalStats"></div>
+                <div id="goalMood" class="goal-mood"></div>
+                <div id="goalChart" class="goal-chart" aria-label="Goal trajectory"></div>
+                <p class="twin-lede" id="goalCopy">Pick a customer and the path fills in.</p>
+                <p class="cite-chip" id="goalCopySource"></p>
+                <div class="achievement-grid" id="goalAchievements"></div>
+                <div class="lever-suggest" aria-label="AI lever suggestions">
+                  <button class="secondary-button" type="button" id="suggestLevers"><span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.8L12 2z"/></svg></span> Suggest ways to improve this</button>
+                  <div id="leverSuggestions" class="lever-candidates" aria-live="polite"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div id="gameExperience" class="experience-panel">
         <section class="play-hero">
           <div>
             <span class="play-kicker">✦ 12 MONTHS TO FUTURE YOU</span>
@@ -325,7 +486,7 @@
           </div>
           <div class="play-profile">
             <div class="hero-human-avatar" aria-hidden="true"><span class="human-hair"></span><span class="human-head"><i></i></span><span class="human-torso"></span><span class="human-arm left"></span><span class="human-arm right"></span><span class="human-leg left"></span><span class="human-leg right"></span><b id="gameLevel">1</b></div>
-            <div class="play-profile-copy"><small>YOUR DIGITAL TWIN</small><strong>Amira</strong><span id="gameRank">New Future Builder</span></div>
+            <div class="play-profile-copy"><small>YOUR DIGITAL TWIN</small><strong id="gamePlayerName">Amira</strong><span id="gameRank">New Future Builder</span></div>
             <button type="button" class="avatar-studio-button" id="openAvatarStudio">Customize avatar</button>
           </div>
         </section>
@@ -343,7 +504,7 @@
           <aside class="story-map card">
             <p class="eyebrow">YOUR YEAR</p>
             <div class="month-path" id="gameTimeline"></div>
-            <div class="game-objective"><span>MISSION</span><strong>Finish Month 12 with</strong><ul><li>Positive cash</li><li>Stress below 60</li><li>Protection above 60</li></ul></div>
+            <div class="game-objective"><span>MISSION</span><strong>Finish Month 12 with</strong><ul><li>6-month cash buffer</li><li>Never go negative</li><li>Stay on a real goal path</li></ul></div>
             <div class="chapter-preview"><p class="eyebrow">OTHER CHAPTERS</p><button disabled>↗ Career Reset <small>Coming next</small></button><button disabled>♡ Wedding Journey <small>Coming next</small></button></div>
           </aside>
 
@@ -362,30 +523,12 @@
             <div class="decision-log"><p class="eyebrow">YOUR DECISIONS</p><div id="decisionLog"><small>No decisions yet.</small></div></div>
           </aside>
         </div>
-
-        <details class="future-lab card" id="futureLab">
-          <summary>
-            <span class="future-lab-icon" aria-hidden="true">✦</span>
-            <span class="future-lab-copy">
-              <strong>Ask Future You anything</strong>
-              <small>Chat with your AI twin about choices, trade-offs, and what comes next</small>
-            </span>
-            <span class="future-lab-toggle" aria-hidden="true">
-              <span>AI twin chat</span>
-              <b></b>
-            </span>
-          </summary>
-          <div class="future-lab-body">
-            <div><div class="branch-toggle" id="futureBranch" role="group" aria-label="Projection path"><button type="button" class="branch-btn active" data-branch="ignored">Without my moves</button><button type="button" class="branch-btn" data-branch="accepted">With my moves</button></div><div class="suggest-list" id="futureSuggestions"></div></div>
-            <section class="future-chat"><div class="chat-thread" id="futureThread" aria-live="polite"></div><form class="chat-compose" id="futureForm"><input id="futureInput" type="text" placeholder="Ask Future You a question…" autocomplete="off" /><button class="primary-button" type="submit" id="futureSend">Ask</button></form></section>
-          </div>
-        </details>
         </div>
 
         <div id="canvasExperience" class="experience-panel" hidden>
           <section class="canvas-hero card">
-            <div><p class="eyebrow">FUTURE CANVAS · PERSONALISED FOR AMIRA</p><h2>Design the life you are planning for.</h2><p>Drag possible life events onto the timeline and see how the picture—and the numbers—change together.</p></div>
-            <div class="canvas-profile-tags"><span>Age 34</span><span>Married</span><span>New parent</span><span>Priority client</span></div>
+            <div><p class="eyebrow" id="canvasPersonaEyebrow">FUTURE CANVAS · PERSONALISED FOR AMIRA</p><h2>Design the life you are planning for.</h2><p>Drag possible life events onto the timeline and see how the picture—and the numbers—change together.</p></div>
+            <div class="canvas-profile-tags" id="canvasProfileTags"><span>Age 34</span><span>Priority client</span></div>
           </section>
           <div class="canvas-layout">
             <aside class="event-palette card">

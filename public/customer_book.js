@@ -69,6 +69,20 @@ const LIFE_EVENT_CUSTOMERS = [
     status: { key: "life-event", label: "Life event" },
     eventLabel: "Getting married",
   },
+  {
+    id: "h-hp-01",
+    scenarioId: "h-hp-01",
+    initials: "WL",
+    fullName: "Wei Lin Chen",
+    age: 38,
+    occupation: "Engineer, Greenfield Engr",
+    segment: "Priority",
+    aum: 164200,
+    lastContactDays: 3,
+    phone: "+65 8123 4011",
+    status: { key: "life-event", label: "Life event" },
+    eventLabel: "Home purchase / renovation",
+  },
 ];
 
 function hash(n) {

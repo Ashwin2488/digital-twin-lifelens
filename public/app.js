@@ -21,6 +21,11 @@ const state = {
   game: null,
   avatarProfile: { coins: 120, owned: [], equipped: [], colour: "sky" },
   futureCanvas: { events: [], filter: "all", connections: [] },
+  goalCustomerId: "h-hp-01",
+  goalPlan: null,
+  goalTouched: false,
+  lastIntentText: "",
+  earnedAchievementIds: [],
 };
 
 const VIEW_META = {
@@ -40,9 +45,14 @@ const VIEW_META = {
     subhead: "148 relationships · filter to life events, then open the twin.",
   },
   future: {
-    breadcrumb: "LIFELENS / <span>PLAY YOUR FUTURE</span>",
-    title: "Welcome back, Future Builder.",
-    subhead: "Explore a life chapter, make your moves, and meet the future they create.",
+    breadcrumb: "LIFELENS / <span>FUTURE YOU</span>",
+    title: "Talk to your twin.",
+    subhead: "Say what you’re becoming — then watch the same engine move the path.",
+  },
+  developer: {
+    breadcrumb: "LIFELENS / <span>DEVELOPER</span>",
+    title: "How this actually works.",
+    subhead: "Holdout evaluation, live detector lab, and this session's activity log.",
   },
 };
 
@@ -51,6 +61,7 @@ const VIEW_PATHS = {
   customers: "/customers",
   future: "/future",
   client: "/client",
+  developer: "/developer",
 };
 
 const PATH_VIEWS = {
@@ -60,6 +71,7 @@ const PATH_VIEWS = {
   "/future": "future",
   "/play-future": "future",
   "/client": "client",
+  "/developer": "developer",
 };
 
 const money = new Intl.NumberFormat("en-SG", {
@@ -67,6 +79,10 @@ const money = new Intl.NumberFormat("en-SG", {
   currency: "SGD",
   maximumFractionDigits: 0,
 });
+
+function isLiveLlm(source) {
+  return Boolean(source) && !/fallback|cached-demo|error|deterministic/i.test(String(source));
+}
 
 const customerDetails = {
   "new-parent": {
@@ -123,7 +139,55 @@ const customerDetails = {
       { name: "Couples Wealth Plan", type: "INVESTMENT", fit: 83, value: "From S$500/mo", icon: "◈", color: "gold", why: "High combined surplus supports post-wedding goal planning.", impact: "Starts a shared wealth journey", action: 600 },
     ],
   },
+  "h-hp-01": {
+    initials: "WL",
+    fullName: "Wei Lin Chen",
+    age: 38,
+    occupation: "Greenfield Engr",
+    tenure: "—",
+    aum: "—",
+    income: "Ledger-derived",
+    tier: "Priority",
+    health: 72,
+    context: "Home purchase / renovation",
+    phone: "",
+    products: [],
+  },
+  "h-none-01": {
+    initials: "OS",
+    fullName: "Omar Sim",
+    age: 36,
+    occupation: "Pebble Labs",
+    tenure: "—",
+    aum: "—",
+    income: "Ledger-derived",
+    tier: "Priority",
+    health: 70,
+    context: "No strong life-event",
+    phone: "",
+    products: [],
+  },
 };
+
+/** Product icons — stroke-SVG, consistent with the sidebar nav icons. Unicode glyphs (♢ ↗ ◈ …)
+ * used to vary per-persona by array index; this maps by product TYPE so every customer's
+ * "PROTECTION" product looks the same regardless of which hero/holdout it belongs to. */
+const PRODUCT_TYPE_ICON = {
+  PROTECTION: '<path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>',
+  SAVINGS: '<path d="M4 15l5-5 4 4 7-7"/><path d="M15 6h6v6"/>',
+  INVESTMENT: '<path d="M6 3h12l4 6-10 12L2 9l4-6z"/>',
+  SUPPORT: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
+  LIQUIDITY: '<path d="M12 3c4 5 6 8 6 11a6 6 0 11-12 0c0-3 2-6 6-11z"/>',
+  BANKING: '<path d="M3 21h18"/><path d="M4 21V10l8-6 8 6v11"/><path d="M9 21v-7M15 21v-7"/>',
+  CREDIT: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/>',
+};
+const SPARK_ICON_PATH = '<path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.8L12 2z"/>';
+
+function productIconSvg(type) {
+  const inner = PRODUCT_TYPE_ICON[String(type || "").toUpperCase()];
+  if (inner) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  return `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${SPARK_ICON_PATH}</svg>`;
+}
 
 const $ = (selector) => document.querySelector(selector);
 const nodes = {
@@ -139,10 +203,14 @@ async function init() {
   const params = new URLSearchParams(window.location.search);
   const sharedScenario = params.get("scenario");
   const clientInvite = params.get("future") === "client";
-  if (sharedScenario && customerDetails[sharedScenario]) state.scenarioId = sharedScenario;
+  if (sharedScenario) {
+    state.scenarioId = sharedScenario;
+    state.goalCustomerId = sharedScenario;
+  }
   const list = await fetchJson("/api/scenarios");
   state.scenariosList = list.scenarios;
-  await Promise.all([loadTwinImpactStrip(), loadScenario(state.scenarioId)]);
+  await Promise.all([loadTwinImpactStrip(), loadScenario(state.scenarioId), loadHoldoutEval()]);
+  populateGoalCustomers();
   bindActions();
   if (clientInvite) {
     document.body.dataset.clientExperience = "true";
@@ -220,11 +288,56 @@ function setView(name, { history: historyMode = "push" } = {}) {
     renderHomeOutlook(state.homePreviewId);
   }
   if (name === "future") {
+    syncGoalCustomer(state.scenarioId);
     renderFuturePicker();
     renderFutureSuggestions();
     renderFutureThread();
     renderPlayFuture();
+    refreshGoalPlan();
   }
+  if (name === "developer") {
+    loadDeveloperPanel();
+  }
+}
+
+function syncGoalCustomer(id) {
+  if (!id) return;
+  const sel = $("#goalCustomer");
+  if (sel && [...sel.options].some((o) => o.value === id)) sel.value = id;
+  state.goalCustomerId = $("#goalCustomer")?.value || id;
+}
+
+function activeTwinId() {
+  return state.goalCustomerId || state.scenarioId;
+}
+
+function activeTwinDetails() {
+  return customerDetails[activeTwinId()] || customerDetails[state.scenarioId] || { fullName: "You", initials: "FY" };
+}
+
+function activeTwinFirstName() {
+  return String(activeTwinDetails().fullName || "You").split(" ")[0];
+}
+
+function populateGoalCustomers() {
+  const sel = $("#goalCustomer");
+  if (!sel) return;
+  const seen = new Set();
+  const rows = [];
+  const add = (id, name, extra) => {
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    rows.push(`<option value="${escapeHtml(id)}">${escapeHtml(name)}${extra ? ` · ${escapeHtml(extra)}` : ""}</option>`);
+  };
+  for (const c of state.customerBook) {
+    if (c.scenarioId) add(c.scenarioId, c.fullName, c.eventLabel);
+  }
+  add("h-none-01", "Omar Sim", "holdout none");
+  add("h-rt-01", "Ethan Teo", "holdout retirement");
+  sel.innerHTML = rows.join("");
+  if (state.goalCustomerId && seen.has(state.goalCustomerId)) sel.value = state.goalCustomerId;
+  else if (state.scenarioId && seen.has(state.scenarioId)) sel.value = state.scenarioId;
+  state.goalCustomerId = sel.value || state.goalCustomerId;
 }
 
 async function openClient(scenarioId) {
@@ -236,16 +349,33 @@ async function loadScenario(id) {
   state.scenarioId = id;
   $("#aiSource").innerHTML = "<i></i> ANALYSING";
   setTimelineStep(2);
-  const [payload, intelligence] = await Promise.all([
-    fetchJson(`/api/scenarios/${id}`),
-    fetchJson(`/api/intelligence/${id}`),
-  ]);
-  state.scenario = payload.scenario;
-  state.projection = payload.projection;
-  state.selected = new Set([0, 1]);
+  const intelligence = await fetchJson(`/api/intelligence/${id}`);
+  ensureClientDetails(id, intelligence);
+  try {
+    const payload = await fetchJson(`/api/scenarios/${id}`);
+    state.scenario = payload.scenario;
+    state.projection = payload.projection;
+  } catch {
+    const plan = await postJson(`/api/customers/${id}/goal-plan`, {});
+    state.scenario = {
+      id,
+      title: intelligence.event.label,
+      customer: intelligence.persona?.fullName || id,
+      event: intelligence.event,
+      suggestedQuestions: ["What should I watch out for next month?", "How different are the two futures?"],
+    };
+    state.projection = { ignored: plan.ignored, accepted: plan.modeled, delta: plan.delta };
+  }
+  state.selected = new Set(intelligence.products?.length ? [0] : []);
   state.intelligence = intelligence;
+  try {
+    state.c360 = await fetchJson(`/api/customers/${id}/360`);
+  } catch {
+    state.c360 = null;
+  }
   hydrateCustomerDetails();
-  $("#aiSource").innerHTML = `<i></i> ${intelligence.source === "openai" ? "OPENAI · LIVE" : "VERIFIED FALLBACK"}`;
+  checkTwinEngagement(id);
+  $("#aiSource").innerHTML = `<i></i> ${isLiveLlm(intelligence.source) ? `${String(intelligence.source).toUpperCase()} · LIVE` : "VERIFIED FALLBACK"}`;
   document.querySelectorAll(".triage-card").forEach((b) => b.classList.toggle("active", b.dataset.id === id));
   renderProfile();
   renderProducts();
@@ -265,30 +395,67 @@ async function loadScenario(id) {
   }
 }
 
+async function checkTwinEngagement(id) {
+  const banner = $("#twinEmptyState");
+  if (!banner) return;
+  try {
+    const { plans } = await fetchJson("/api/plans");
+    const engaged = (plans || []).some((row) => row.customerId === id);
+    banner.hidden = engaged;
+    if (!engaged) {
+      const name = customerDetails[id]?.fullName?.split(" ")[0] || "This customer";
+      $("#twinEmptyTitle").textContent = `${name} hasn't explored their own Future You yet.`;
+    }
+  } catch {
+    banner.hidden = true;
+  }
+}
+
+function ensureClientDetails(id, intel) {
+  if (customerDetails[id]) return;
+  const p = intel.persona || {};
+  const name = p.fullName || id;
+  customerDetails[id] = {
+    initials: (p.initials || name.replace(/[^A-Za-z]/g, "").slice(0, 2) || "XX").toUpperCase(),
+    fullName: name,
+    age: p.age || "—",
+    occupation: p.occupation || p.employer || "Holdout customer",
+    tenure: "—",
+    aum: "—",
+    income: "Ledger-derived",
+    tier: p.segment || "Priority",
+    health: 70,
+    context: intel.event?.label || id,
+    phone: p.phone || "",
+    products: [],
+  };
+}
+
 function hydrateCustomerDetails() {
   const i = state.intelligence;
-  const p = i.persona;
+  const p = i.persona || {};
+  ensureClientDetails(state.scenarioId, i);
   const d = customerDetails[state.scenarioId];
   Object.assign(d, {
-    initials: p.initials,
-    fullName: p.fullName,
-    age: p.age,
-    occupation: p.occupation,
-    tenure: `${Math.floor(p.tenureMonths / 12)}y ${p.tenureMonths % 12}m`,
-    aum: money.format(p.totalAssets),
-    income: p.monthlyIncome ? `${money.format(p.monthlyIncome)}/mo` : "Income interrupted",
-    tier: p.segment,
-    health: Math.round(70 + Math.min(25, p.tenureMonths / 12)),
-    context: p.goals[0],
+    initials: p.initials || d.initials,
+    fullName: p.fullName || d.fullName,
+    age: p.age || d.age,
+    occupation: p.occupation || d.occupation,
+    tenure: p.tenureMonths != null ? `${Math.floor(p.tenureMonths / 12)}y ${p.tenureMonths % 12}m` : d.tenure,
+    aum: p.totalAssets ? money.format(p.totalAssets) : d.aum,
+    income: p.monthlyIncome ? `${money.format(p.monthlyIncome)}/mo` : d.income,
+    tier: p.segment || d.tier,
+    health: p.tenureMonths != null ? Math.round(70 + Math.min(25, p.tenureMonths / 12)) : d.health,
+    context: p.goals?.[0] || i.event?.label || d.context,
     phone: p.phone || d.phone,
-    products: i.products.map((x, index) => ({
+    products: (i.products || []).map((x, index) => ({
       name: x.name,
       type: x.type,
       fit: x.fit,
       value: x.annualValue ? `${money.format(x.annualValue)}/yr` : "No fee",
-      icon: ["♢", "↗", "◈"][index],
-      color: ["blue", "teal", "gold"][index],
-      why: i.ai.productNarratives[x.name] || x.reason,
+      icon: ["♢", "↗", "◈"][index] || "✦",
+      color: ["blue", "teal", "gold"][index] || "blue",
+      why: i.ai?.productNarratives?.[x.name] || x.reason,
       impact: x.impact,
       action: Number(x.monthlyImpact) || 0,
       guardrails: x.guardrails,
@@ -351,9 +518,11 @@ function renderProfile() {
     .map(([a, b]) => `<div><span>${a}</span><strong>${b}</strong></div>`)
     .join("");
   $("#eventTitle").textContent = s.event.label;
-  $("#eventMeta").textContent = `Detected in ${s.event.detectedMonth} · High relevance to financial health`;
+  const onset = s.event.detectedMonth || state.intelligence.event.detectedMonth || "the latest statement window";
+  $("#eventMeta").textContent = `Detected in ${onset} · High relevance to financial health`;
   $("#confidence").textContent = `${Math.round(state.intelligence.event.confidence * 100)}%`;
   renderDetectedChanges();
+  renderClient360();
   $("#signalTrace").innerHTML = state.intelligence.event.evidence
     .slice(0, 2)
     .map(
@@ -371,96 +540,43 @@ function renderProfile() {
 function renderDetectedChanges() {
   const el = $("#detectedChanges");
   if (!el || !state.intelligence) return;
-  const f = state.intelligence.features || {};
-  const id = state.scenarioId;
-  const changes = [];
-
-  if (id === "job-loss") {
-    changes.push({
-      kind: "income",
-      label: "Salary interrupted",
-      detail:
-        f.missingPayrollCycles >= 2
-          ? `${f.missingPayrollCycles} expected payroll cycles missing`
-          : "Payroll pattern broken",
-      confidence: 0.98,
-    });
-    changes.push({
-      kind: "spend",
-      label: "Fixed commitments remain",
-      detail: "Mortgage and insurance still drawing while income is paused",
-      confidence: 0.91,
-    });
-    changes.push({
-      kind: "savings",
-      label: "Cash runway thinning",
-      detail:
-        f.emergencyFundMonths != null
-          ? `Emergency buffer ~${f.emergencyFundMonths} months at current burn`
-          : "Buffer under pressure without support",
-      confidence: 0.88,
-    });
-  } else if (id === "new-parent") {
-    changes.push({
-      kind: "spend",
-      label: "Family spend rising",
-      detail:
-        f.babySpendGrowth > 0
-          ? `Baby-category spend up ~S$${f.babySpendGrowth} vs earlier months`
-          : "Child-related spend accelerating",
-      confidence: 0.89,
-    });
-    changes.push({
-      kind: "spend",
-      label: "Home / childcare costs",
-      detail:
-        f.childcareRecurringMonths >= 2
-          ? `Recurring childcare across ${f.childcareRecurringMonths} months`
-          : "Daycare commitments appearing",
-      confidence: 0.96,
-    });
-    changes.push({
-      kind: "savings",
-      label: "Surplus under pressure",
-      detail:
-        f.monthlySurplus != null
-          ? `Monthly surplus now ~${money.format(f.monthlySurplus)} after new costs`
-          : "Discretionary buffer shrinking",
-      confidence: 0.84,
-    });
-  } else {
-    changes.push({
-      kind: "spend",
-      label: "Wedding spend spike",
-      detail:
-        f.weddingSpend90d > 0
-          ? `S$${Number(f.weddingSpend90d).toLocaleString("en-SG")} across wedding merchants (90d)`
-          : "Vendor cluster accelerating",
-      confidence: 0.95,
-    });
-    changes.push({
-      kind: "income",
-      label: "Partner contributions",
-      detail:
-        f.partnerContributionMonths >= 2
-          ? `Shared inflows across ${f.partnerContributionMonths} months`
-          : "Joint money patterns emerging",
-      confidence: 0.9,
-    });
-    changes.push({
-      kind: "savings",
-      label: "Peak payment risk",
-      detail: "Large vendor balances still ahead — liquidity window tightens",
-      confidence: 0.86,
-    });
+  const evidence = state.intelligence.event?.evidence || [];
+  const kindFor = (source) => {
+    if (/income|payroll/i.test(source || "")) return "income";
+    if (/cashflow|transfer/i.test(source || "")) return "savings";
+    return "spend";
+  };
+  const changes = evidence.slice(0, 3).map((row) => ({
+    kind: kindFor(row.source),
+    label: row.label,
+    detail: row.value,
+    confidence: row.confidence,
+  }));
+  if (!changes.length) {
+    el.innerHTML = `<p class="book-empty">No strong behavioural change in this window.</p>`;
+    return;
   }
-
   el.innerHTML = changes
     .map(
       (c) =>
-        `<div class="detected-chip kind-${c.kind}"><em>${Math.round(c.confidence * 100)}%</em><span class="detected-kind">${c.kind}</span><strong>${escapeHtml(c.label)}</strong><small>${escapeHtml(c.detail)}</small></div>`
+        `<div class="detected-chip kind-${c.kind}"><em>${Math.round((c.confidence || 0) * 100)}%</em><span class="detected-kind">${c.kind}</span><strong>${escapeHtml(c.label)}</strong><small>${escapeHtml(c.detail)}</small></div>`
     )
     .join("");
+}
+
+function renderClient360() {
+  const el = $("#client360");
+  if (!el) return;
+  const rec = state.c360;
+  if (!rec) {
+    el.innerHTML = "";
+    return;
+  }
+  const cover = (rec.holdings || [])
+    .filter((h) => h.category === "insurance" && h.status === "active")
+    .reduce((n, h) => n + (h.sumAssuredOrAUM || 0), 0);
+  const tags = rec.derived?.lifestyleTags?.join(", ") || "—";
+  el.innerHTML = `<div><span>IDENTITY</span><strong>${escapeHtml(rec.identity?.idMasked || "—")}</strong><small>synthetic · not an NRIC</small></div><div><span>INSURANCE IN FORCE</span><strong>${cover ? money.format(cover) : "—"}</strong><small>${(rec.holdings || []).length} holdings</small></div><div><span>BUREAU (SYNTHETIC)</span><strong>${rec.credit?.scoreBand || "—"} · ${rec.credit?.bureauScore || "—"}</strong><small>not derived from the ledger</small></div><div><span>SPEND MIX</span><strong>${escapeHtml(tags)}</strong><small>${escapeHtml(rec.derived?.benchmarkSource || "")}</small></div>`;
 }
 
 function renderProducts() {
@@ -468,7 +584,7 @@ function renderProducts() {
   nodes.productList.innerHTML = products
     .map((p, i) => {
       const why = p.why || p.impact || "Fits the customer's current life-event context.";
-      return `<button class="product ${state.selected.has(i) ? "selected" : ""}" data-index="${i}" type="button"><span class="check">✓</span><span class="product-icon ${p.color}">${p.icon}</span><span class="product-copy"><small class="product-type">${p.type}</small><strong>${escapeHtml(p.name)}</strong><span class="impact">${escapeHtml(p.impact)}</span><span class="why"><b>Why this fits</b>${escapeHtml(why)}</span></span><span class="product-meta"><b>${p.fit}%</b><strong>${escapeHtml(p.value)}</strong></span></button>`;
+      return `<button class="product ${state.selected.has(i) ? "selected" : ""}" data-index="${i}" type="button"><span class="check">✓</span><span class="product-icon ${p.color}">${productIconSvg(p.type)}</span><span class="product-copy"><small class="product-type">${p.type}</small><strong>${escapeHtml(p.name)}</strong><span class="impact">${escapeHtml(p.impact)}</span><span class="why"><b>Why this fits</b>${escapeHtml(why)}</span></span><span class="product-meta"><b>${p.fit}%</b><strong>${escapeHtml(p.value)}</strong></span></button>`;
     })
     .join("");
   nodes.productList.querySelectorAll(".product").forEach((btn) =>
@@ -484,7 +600,7 @@ function renderProducts() {
 }
 
 async function renderSimulation() {
-  const products = customerDetails[state.scenarioId].products;
+  const products = customerDetails[state.scenarioId]?.products || [];
   const chosen = [...state.selected]
     .map((i) => products[i])
     .filter(Boolean)
@@ -495,11 +611,18 @@ async function renderSimulation() {
       startsMonth: 1,
     }));
 
-  const payload = await fetchJson("/api/project", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scenarioId: state.scenarioId, actions: chosen }),
-  });
+  let payload;
+  try {
+    payload = await fetchJson("/api/project", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ scenarioId: state.scenarioId, actions: chosen }),
+    });
+  } catch {
+    const ignored = state.projection.ignored;
+    const modeled = state.projection.accepted || state.projection.modeled;
+    payload = { ignored, modeled, delta: state.projection.delta || { endingBalance: (modeled?.endingBalance || 0) - ignored.endingBalance } };
+  }
 
   const base = payload.ignored.trajectory.map((p) => p.projectedBalance);
   const modeled = payload.modeled.trajectory.map((p) => p.projectedBalance);
@@ -625,6 +748,371 @@ function areaPath(values, min, range) {
   return `${linePath(values, min, range)} L${x(11)},215 L${x(0)},215 Z`;
 }
 
+async function loadHoldoutEval() {
+  const precisionEl = $("#holdoutPrecision");
+  if (!precisionEl) return;
+  try {
+    const report = await fetchJson("/api/eval/holdout-detection");
+    precisionEl.textContent = `${Math.round(report.precision * 100)}%`;
+    $("#holdoutRecall").textContent = `${Math.round(report.recall * 100)}%`;
+    $("#holdoutSize").textContent = String(report.size);
+    $("#holdoutEvalHeadline").textContent = `${Math.round(report.precision * 100)}% precision on unseen ledgers.`;
+    $("#holdoutEvalNote").textContent = `${report.size} labelled customers · ${Math.round(report.accuracy * 100)}% accuracy · scorer never sees ground truth`;
+  } catch {
+    $("#holdoutEvalNote").textContent = "Holdout eval unavailable";
+  }
+}
+
+async function loadDeveloperPanel() {
+  await Promise.all([loadSystemStatus(), loadSessionLog(), loadDemoMetrics()]);
+}
+
+async function loadSystemStatus() {
+  const el = $("#systemStatus");
+  if (!el) return;
+  try {
+    const health = await fetchJson("/api/health");
+    const rows = [
+      ["AI CONNECTED", health.aiConnected ? "Live" : "Fallback", health.aiConnected],
+      ["DETECTION LLM", health.detectLlmOn ? "On" : "Off", health.detectLlmOn],
+      ["PROVIDER", health.provider || "—", health.aiConnected],
+      ["MODEL", health.model || "—", health.aiConnected],
+    ];
+    el.innerHTML = rows
+      .map(([label, value, live]) => `<div><span>${escapeHtml(label)}</span><strong class="${live ? "status-live" : "status-off"}">${escapeHtml(value)}</strong></div>`)
+      .join("");
+  } catch {
+    el.innerHTML = `<p class="lab-empty">Status unavailable</p>`;
+  }
+}
+
+async function loadSessionLog() {
+  const el = $("#sessionLog");
+  if (!el) return;
+  try {
+    const { log } = await fetchJson("/api/demo/log");
+    el.innerHTML = log.length
+      ? log
+          .map(
+            (row) =>
+              `<div class="log-row"><span><b>${escapeHtml(row.type)}</b> ${escapeHtml(row.detail || "")}</span><small>${new Date(row.at).toLocaleTimeString()}</small></div>`
+          )
+          .join("")
+      : `<p class="lab-empty">No activity yet this process.</p>`;
+  } catch {
+    el.innerHTML = `<p class="lab-empty">Log unavailable</p>`;
+  }
+}
+
+const WEDDING_ADHOC_SAMPLE = {
+  transactions: [
+    { postDate: "2026-02-04", merchantRaw: "THE ST. REGIS WEDDING", amount: -3800 },
+    { postDate: "2026-02-11", merchantRaw: "GIOIELLI BRIDAL", amount: -1420 },
+    { postDate: "2026-02-18", merchantRaw: "THE WEDDING NICHE", amount: -640 },
+    { postDate: "2026-02-15", merchantRaw: "FAST TFR FROM R. ONG", amount: 700 },
+    { postDate: "2026-03-15", merchantRaw: "PAYNOW TFR FROM R. ONG", amount: 700 },
+    { postDate: "2026-02-25", merchantRaw: "HARBOR LAW LLP GIRO SALARY", amount: 6900 },
+  ],
+};
+
+function parseAdhocPaste(text) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) throw new Error("Paste a JSON ledger or CSV first.");
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    const parsed = JSON.parse(trimmed);
+    return Array.isArray(parsed) ? { transactions: parsed } : parsed;
+  }
+  return { csv: trimmed };
+}
+
+function evidenceMini(event) {
+  if (!event?.evidence?.length) return "";
+  return `<div class="evidence-mini">${event.evidence
+    .map((row) => {
+      const pct = Math.max(0, Math.min(100, Math.round((row.scoreWeight || 0) * 100)));
+      return `<div><span class="row-top"><span><b>+${pct} pts</b> ${escapeHtml(row.label)}</span><strong>${escapeHtml(row.value)}</strong></span><div class="weight-track"><i style="width:${pct}%"></i></div></div>`;
+    })
+    .join("")}</div>`;
+}
+
+function renderAdhocResult(result) {
+  const el = $("#adhocResult");
+  if (!el) return;
+  if (result.empty) {
+    el.innerHTML = `<p class="lab-empty">${escapeHtml(result.message || "No strong signal in this data")}</p>`;
+    return;
+  }
+  const primary = result.primary;
+  el.innerHTML = `<div class="lab-hit"><h3>${escapeHtml(primary.label)}</h3><small>${Math.round(primary.confidence * 100)}% · ${result.rowCount} classified rows · not persisted</small>${evidenceMini(primary)}</div>`;
+}
+
+async function postJson(url, body) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+  return data;
+}
+
+async function runAdhocFromUi() {
+  const el = $("#adhocResult");
+  try {
+    const result = await postJson("/api/detect/adhoc", parseAdhocPaste($("#adhocInput")?.value));
+    renderAdhocResult(result);
+  } catch (error) {
+    if (el) el.innerHTML = `<p class="lab-empty">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function runCompareFromUi() {
+  const el = $("#compareResult");
+  const id = $("#compareId")?.value || "h-hp-01";
+  try {
+    const result = await fetchJson(`/api/detect/legacy-vs-generalized/${id}`);
+    el.innerHTML = `<div class="compare-cols"><article class="compare-col"><span>LEGACY</span><strong>${escapeHtml(result.legacy.label)}</strong><small>${Math.round(result.legacy.confidence * 100)}%</small>${evidenceMini(result.legacy)}</article><article class="compare-col"><span>GENERALIZED</span><strong>${escapeHtml(result.generalized.label)}</strong><small>${Math.round(result.generalized.confidence * 100)}%</small>${evidenceMini(result.generalized)}</article></div>`;
+  } catch (error) {
+    if (el) el.innerHTML = `<p class="lab-empty">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function resetDemoState() {
+  const result = await postJson("/api/demo/reset", {});
+  state.avatarProfile = { ...(result.avatarProfile || { coins: 120, owned: [], equipped: [], colour: "sky" }) };
+  state.futureMessages = [];
+  state.futureSessionId = `demo-${Date.now()}`;
+  state.game = null;
+  state.goalPlan = null;
+  state.goalTouched = false;
+  state.earnedAchievementIds = [];
+  applyAvatarProfile();
+  if ($("#avatarCoins")) $("#avatarCoins").textContent = state.avatarProfile.coins;
+  if ($("#studioCoins")) $("#studioCoins").textContent = state.avatarProfile.coins;
+  renderFutureThread();
+  showToast("Demo state reset");
+}
+
+let goalTimer = 0;
+function scheduleGoalPlan() {
+  window.clearTimeout(goalTimer);
+  goalTimer = window.setTimeout(refreshGoalPlan, 120);
+}
+
+function readGoalForm() {
+  return {
+    type: $("#goalType")?.value || "savings",
+    targetAmount: Number($("#goalAmount")?.value || 0),
+    targetDate: $("#goalDate")?.value,
+  };
+}
+
+function fillGoalForm(goal) {
+  if (!goal) return;
+  const allowed = ["emergency", "home", "wedding", "savings"];
+  if ($("#goalType")) $("#goalType").value = allowed.includes(goal.type) ? goal.type : "savings";
+  if ($("#goalAmount")) $("#goalAmount").value = goal.targetAmount;
+  if ($("#goalDate")) $("#goalDate").value = goal.targetDate;
+}
+
+function renderGoalChart(base, modeled) {
+  const target = $("#goalChart");
+  if (!target || !base?.length || !modeled?.length) return;
+  const n = Math.max(base.length, modeled.length, 2);
+  const xs = (i) => 10 + i * (580 / Math.max(1, n - 1));
+  const ys = (v, min, range) => 205 - ((v - min) / range) * 180;
+  const max = Math.max(...modeled, ...base);
+  const min = Math.min(...modeled, ...base, 0);
+  const range = max - min || 1;
+  const line = (values) => values.map((v, i) => `${i ? "L" : "M"}${xs(i)},${ys(v, min, range)}`).join(" ");
+  const area = `${line(modeled)} L${xs(modeled.length - 1)},215 L${xs(0)},215 Z`;
+  target.innerHTML = `<svg viewBox="0 0 600 220" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Goal trajectory"><defs><linearGradient id="goalFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--sc-brand-blue)" stop-opacity=".22"/><stop offset="1" stop-color="var(--sc-brand-blue)" stop-opacity="0"/></linearGradient></defs><path class="area" style="fill:url(#goalFill)" d="${area}"/><path class="line base" d="${line(base)}"/><path class="line solution" d="${line(modeled)}"/></svg>`;
+}
+
+function renderMood(mood, target = "#goalMood") {
+  const el = $(target);
+  if (!el || !mood) return;
+  el.className = `goal-mood mood-${mood.key}`;
+  el.innerHTML = `<span>${mood.key === "calm" ? "🙂" : mood.key === "stressed" ? "😟" : "😐"}</span><span>${escapeHtml(mood.label)} — ${escapeHtml(mood.detail)}</span>`;
+}
+
+function renderGoalPlan(plan) {
+  if (!plan) return;
+  $("#goalStats").innerHTML = `<div><span>REQUIRED / MO</span><strong>${money.format(plan.requiredMonthly)}</strong></div><div><span>MODELED NET</span><strong>${money.format(plan.monthlyNet)}</strong></div><div><span>ENDING CASH</span><strong>${money.format(plan.modeled.endingBalance)}</strong></div><div><span>STATUS</span><strong>${plan.onTrack ? "On track" : "Short"}</strong></div>`;
+  renderMood(plan.mood);
+  if ($("#goalLumpSumLabel")) $("#goalLumpSumLabel").textContent = plan.lumpSumLabel || "One-off lump sum";
+  if ($("#goalCopy")) $("#goalCopy").textContent = plan.copy;
+  if ($("#goalCopySource")) $("#goalCopySource").textContent = plan.copySource === "deterministic" || !plan.copySource ? "" : `Narration: ${plan.copySource}`;
+  renderGoalChart(
+    plan.ignored.trajectory.map((p) => p.projectedBalance),
+    plan.modeled.trajectory.map((p) => p.projectedBalance)
+  );
+  $("#goalAchievements").innerHTML = plan.achievements
+    .map((row) => `<div class="${row.earned ? "earned" : ""}"><b>${row.earned ? "✓" : "○"}</b><strong>${escapeHtml(row.title)}</strong><small>${escapeHtml(row.detail)}</small></div>`)
+    .join("");
+}
+
+function awardGoalAchievements(plan) {
+  let gained = 0;
+  for (const row of plan.achievements) {
+    if (row.earned && !state.earnedAchievementIds.includes(row.id)) {
+      state.earnedAchievementIds.push(row.id);
+      gained += 40;
+    }
+  }
+  if (!gained) return;
+  state.avatarProfile.coins += gained;
+  if ($("#avatarCoins")) $("#avatarCoins").textContent = state.avatarProfile.coins;
+  showToast(`+${gained} coins · projection milestone`);
+}
+
+async function refreshGoalPlan() {
+  if (!$("#goalCustomer")) return;
+  const id = $("#goalCustomer").value || state.goalCustomerId;
+  state.goalCustomerId = id;
+  const levers = {
+    spendCutPct: Number($("#goalCut")?.value || 0),
+    extraMonthly: Number($("#goalExtra")?.value || 0),
+    lumpSum: Number($("#goalLumpSum")?.value || 0),
+  };
+  if ($("#goalCutLabel")) $("#goalCutLabel").textContent = `${levers.spendCutPct}%`;
+  if ($("#goalExtraLabel")) $("#goalExtraLabel").textContent = money.format(levers.extraMonthly);
+  if ($("#goalLumpSumValue")) $("#goalLumpSumValue").textContent = money.format(levers.lumpSum);
+  try {
+    const plan = await postJson(`/api/customers/${id}/goal-plan`, state.goalTouched ? { goal: readGoalForm(), levers } : { levers });
+    state.goalPlan = plan;
+    if (!state.goalTouched) fillGoalForm(plan.goal);
+    renderGoalPlan(plan);
+    if (state.goalTouched) awardGoalAchievements(plan);
+  } catch (error) {
+    if ($("#goalCopy")) $("#goalCopy").textContent = error.message;
+  }
+}
+
+async function loadHandoffQueue() {
+  const el = $("#handoffQueue");
+  if (!el) return;
+  try {
+    const payload = await fetchJson("/api/plans");
+    const plans = payload.plans || [];
+    el.innerHTML = plans.length
+      ? plans.slice(0, 4).map((row) => `<div class="handoff-row"><strong>${escapeHtml(row.label)}</strong><small>${escapeHtml(row.customerId)} · ${row.onTrack ? "on track" : "short"}${row.userIntent ? ` · “${escapeHtml(String(row.userIntent).slice(0, 48))}”` : ""}</small></div>`).join("")
+      : `<p class="lab-empty">No consented shares yet. Customer Goal Plan → Share with RM.</p>`;
+  } catch {
+    el.innerHTML = "";
+  }
+}
+
+async function loadDemoMetrics() {
+  try {
+    const metrics = await fetchJson("/api/demo/metrics");
+    if ($("#queuedHandoffs")) $("#queuedHandoffs").textContent = String(metrics.queuedPlans ?? 0);
+    if ($("#demoShareCount")) $("#demoShareCount").textContent = String(metrics.plansShared || 0);
+  } catch {
+    /* ignore */
+  }
+}
+
+async function submitLifeIntent(text) {
+  const id = $("#goalCustomer")?.value || state.goalCustomerId;
+  const levers = {
+    spendCutPct: Number($("#goalCut")?.value || 0),
+    extraMonthly: Number($("#goalExtra")?.value || 0),
+    lumpSum: Number($("#goalLumpSum")?.value || 0),
+  };
+  const payload = await postJson(`/api/customers/${id}/intent`, { text, levers });
+  state.lastIntentText = text;
+  state.goalTouched = true;
+  state.goalCustomerId = id;
+  fillGoalForm(payload.goal);
+  state.goalPlan = payload.plan;
+  renderGoalPlan(payload.plan);
+  if ($("#intentNote")) {
+    $("#intentNote").textContent = `${payload.intent.source}: ${payload.intent.eventHint} · ${payload.goal.type} ${money.format(payload.goal.targetAmount)} by ${payload.goal.targetDate}`;
+  }
+  return payload;
+}
+
+function looksLikeIntent(q) {
+  return /\b(i am going|i['’]m going|i want to|i will be|going to be|becoming|save .+ for|buy a (house|home))\b/i.test(q);
+}
+
+function moodClass(mood) {
+  return mood?.key === "stressed" ? "is-stressed" : "";
+}
+
+function renderLeverSuggestions(result) {
+  const el = $("#leverSuggestions");
+  if (!el) return;
+  if (!result?.candidates?.length) {
+    el.innerHTML = `<p class="lab-empty">No alternative levers to suggest right now.</p>`;
+    return;
+  }
+  el.innerHTML = result.candidates
+    .map(
+      (c, i) =>
+        `<div class="lever-candidate ${moodClass(c.mood)}"><strong>${escapeHtml(c.label)}</strong><small>${escapeHtml(c.why || "")}</small><div class="candidate-foot"><em>${c.onTrack ? "On track" : "Short"} · ${money.format(c.endingBalance)} ending</em><button type="button" data-index="${i}">Apply</button></div></div>`
+    )
+    .join("");
+  el.querySelectorAll("button[data-index]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const candidate = result.candidates[Number(btn.dataset.index)];
+      if (!candidate) return;
+      applyLeverCandidate(candidate.levers);
+    });
+  });
+  if ($("#leverSuggestSource")) {
+    $("#leverSuggestSource").textContent = /deterministic/.test(result.source) ? "" : `Suggested by ${result.source}`;
+  }
+}
+
+function applyLeverCandidate(levers) {
+  if ($("#goalCut")) $("#goalCut").value = levers.spendCutPct;
+  if ($("#goalExtra")) $("#goalExtra").value = levers.extraMonthly;
+  if ($("#goalLumpSum")) $("#goalLumpSum").value = levers.lumpSum;
+  state.goalTouched = true;
+  refreshGoalPlan();
+  showToast("Levers applied");
+}
+
+async function suggestLeversFromUi() {
+  const id = $("#goalCustomer")?.value || state.goalCustomerId;
+  const el = $("#leverSuggestions");
+  if (el) el.innerHTML = `<p class="lab-empty">Thinking…</p>`;
+  try {
+    const goal = state.goalTouched ? readGoalForm() : undefined;
+    const levers = {
+      spendCutPct: Number($("#goalCut")?.value || 0),
+      extraMonthly: Number($("#goalExtra")?.value || 0),
+      lumpSum: Number($("#goalLumpSum")?.value || 0),
+    };
+    const result = await postJson(`/api/customers/${id}/lever-suggest`, { goal, levers });
+    renderLeverSuggestions(result);
+  } catch (error) {
+    if (el) el.innerHTML = `<p class="lab-empty">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function shareGoalPlan() {
+  if (!state.goalPlan) await refreshGoalPlan();
+  const plan = state.goalPlan;
+  if (!plan) return;
+  const intent = String(state.lastIntentText || "").trim();
+  const baseLabel = plan.cashflow?.label || state.goalCustomerId;
+  await postJson("/api/plans", {
+    customerId: state.goalCustomerId,
+    label: intent ? `${baseLabel} · ${intent.slice(0, 80)}` : baseLabel,
+    userIntent: intent,
+    goal: plan.goal,
+    onTrack: plan.onTrack,
+    endingBalance: plan.modeled.endingBalance,
+  });
+  showToast("Plan queued for Jamie");
+  loadHandoffQueue();
+  loadDemoMetrics();
+}
+
 async function loadTwinImpactStrip() {
   const strip = nodes.twinImpactStrip;
   if (!strip) return;
@@ -632,33 +1120,48 @@ async function loadTwinImpactStrip() {
     renderPortfolioStrip(state.twinCards);
     renderTwinImpactStrip(state.twinCards);
     renderHomeOutlook(state.homePreviewId);
+    loadHandoffQueue();
+    loadDemoMetrics();
     return;
   }
   strip.innerHTML = `<p class="book-empty">Loading twin projections…</p>`;
   try {
+    const triage = await fetchJson("/api/today-triage");
     const cards = await Promise.all(
-      Object.keys(customerDetails).map(async (id) => {
-        const payload = await fetchJson(`/api/scenarios/${id}`);
+      (triage.rows || []).map(async (row) => {
+        const id = row.id;
+        let scenario;
+        let projection;
+        try {
+          const payload = await fetchJson(`/api/scenarios/${id}`);
+          scenario = payload.scenario;
+          projection = payload.projection;
+        } catch {
+          const plan = await postJson(`/api/customers/${id}/goal-plan`, {});
+          scenario = { id, event: row.event };
+          projection = { ignored: plan.ignored, accepted: plan.modeled, delta: plan.delta };
+        }
         return {
           id,
-          scenario: payload.scenario,
-          projection: payload.projection,
-          details: customerDetails[id],
+          score: row.score,
+          eligibleValue: row.eligibleValue,
+          scenario,
+          projection,
+          details: customerDetails[id] || {
+            initials: String(row.persona?.fullName || id).replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase() || "XX",
+            fullName: row.persona?.fullName || id,
+          },
         };
       })
     );
-    // Prefer the customer with the earliest stress window for the home preview
-    const ranked = [...cards].sort((a, b) => {
-      const am = a.projection.ignored.overdraftMonth ?? 99;
-      const bm = b.projection.ignored.overdraftMonth ?? 99;
-      return am - bm;
-    });
     state.twinCards = cards;
-    state.homePreviewId = ranked[0]?.id || state.scenarioId;
+    state.homePreviewId = cards[0]?.id || state.scenarioId;
     renderMomentumSpark();
     renderPortfolioStrip(cards);
     renderTwinImpactStrip(cards);
     renderHomeOutlook(state.homePreviewId);
+    loadHandoffQueue();
+    loadDemoMetrics();
   } catch (error) {
     strip.innerHTML = `<p class="book-empty">Could not load twin impact.</p>`;
     console.error(error);
@@ -753,7 +1256,7 @@ function renderTwinImpactStrip(cards) {
         </div>
         <div class="triage-spark">${miniSparkSvg(projection, `triageFill-${id}`)}</div>
         <p class="twin-verdict">${escapeHtml(twinVerdict(projection))}</p>
-        <span class="triage-cta">View outlook <span aria-hidden="true">→</span></span>
+        <span class="triage-cta">Rank ${escapeHtml(String(card.score ?? "—"))} · view outlook <span aria-hidden="true">→</span></span>
       </button>`;
     })
     .join("");
@@ -929,13 +1432,18 @@ function gameScore(game) {
 }
 
 function gameAchievements(game) {
-  const tags = new Set(game.choices.map((c) => c.tag));
+  const spend = 4650;
+  const snapshot = {
+    emergencyFundMonths: spend ? game.cash / spend : 0,
+    minBalance: Math.min(...(game.history || [game.cash])),
+    onTrack: game.cash >= 0,
+    monthlyNet: 6200 - spend + (game.monthly || 0),
+  };
   const items = [];
-  if (game.cash > 0) items.push(["☂", "Rainy Day Ready", "Finished with a positive buffer"]);
-  if (game.debt === 0) items.push(["◇", "Debt Dodger", "Completed the year without new debt"]);
-  if (game.protection >= 60) items.push(["⬡", "Protected Future", "Closed the family's biggest protection gaps"]);
-  if (game.stress < 55) items.push(["☼", "Calm Under Pressure", "Kept stress manageable through change"]);
-  if (tags.has("mini-break") || tags.has("holiday")) items.push(["★", "Memory Maker", "Made room for joy as well as money"]);
+  if (snapshot.emergencyFundMonths >= 6) items.push(["☂", "6-month buffer", `${snapshot.emergencyFundMonths.toFixed(1)} months of spend in cash — same threshold as Goal Plan`]);
+  if (snapshot.minBalance >= 0) items.push(["◇", "Stayed liquid", "Never went negative"]);
+  if (snapshot.onTrack) items.push(["⬡", "Goal in reach", "Ended the year with a positive buffer"]);
+  if (snapshot.monthlyNet > 0) items.push(["☼", "Paying yourself first", "Modeled monthly net stayed positive"]);
   return items.slice(0, 4);
 }
 
@@ -1020,7 +1528,7 @@ function renderGameResults() {
   const ignored = [4200, 3750, 2550, 1600, 650, -300, -1250];
   const uplift = g.cash - ignored.at(-1);
   const achievements = gameAchievements(g);
-  $("#gameRound").innerHTML = `<div class="results-celebrate"><span>YEAR COMPLETE · +${g.earnedCoins} FUTURE COINS</span><h2>Meet Future Amira.</h2><p>${escapeHtml(persona[1])}</p></div><div class="result-score"><div class="score-orbit"><strong>${score}</strong><span>FUTURE SCORE</span></div><div><p class="eyebrow">YOUR FINANCIAL PERSONALITY</p><h2>${escapeHtml(persona[0])}</h2><p>Ending cash <b>${money.format(g.cash)}</b> · Debt <b>${money.format(g.debt)}</b> · Protection <b>${g.protection}/100</b></p></div></div><div class="scenario-comparison"><div class="comparison-head"><p class="eyebrow">THREE POSSIBLE FUTURES</p><h3>Same life event. Different levels of support.</h3></div>${scenarioComparison(g)}</div><div class="result-chart"><div><p class="eyebrow">THE FUTURE YOU CREATED</p><h3>${uplift >= 0 ? "+" : ""}${money.format(uplift)} vs unmanaged path</h3></div>${gameResultChart(g.history)}</div><div class="achievement-grid">${achievements.map(([icon,title,copy]) => `<div><b>${icon}</b><span><strong>${title}</strong><small>${copy}</small></span></div>`).join("")}</div><div class="result-actions"><button type="button" class="secondary-button" id="rewindFuture">↶ Rewind one decision</button><button type="button" class="primary-button" id="shareGameRm">Share this future with Jamie</button><button type="button" class="text-button" id="restartGame">Play again</button></div><div class="rm-handoff result-handoff" id="gameHandoff" hidden><span>✓</span><div><strong>Jamie received more than a product lead</strong><small>Priority: family liquidity · Main trade-off: ${escapeHtml(g.choices[1]?.label || "daycare")} · Protection: ${g.protection}/100 · Customer requested a conversation.</small></div></div>`;
+  $("#gameRound").innerHTML = `<div class="results-celebrate"><span>YEAR COMPLETE · +${g.earnedCoins} FUTURE COINS</span><h2>Meet Future ${escapeHtml(activeTwinFirstName())}.</h2><p>${escapeHtml(persona[1])}</p></div><div class="result-score"><div class="score-orbit"><strong>${score}</strong><span>FUTURE SCORE</span></div><div><p class="eyebrow">YOUR FINANCIAL PERSONALITY</p><h2>${escapeHtml(persona[0])}</h2><p>Ending cash <b>${money.format(g.cash)}</b> · Debt <b>${money.format(g.debt)}</b> · Protection <b>${g.protection}/100</b></p></div></div><div class="scenario-comparison"><div class="comparison-head"><p class="eyebrow">THREE POSSIBLE FUTURES</p><h3>Same life event. Different levels of support.</h3></div>${scenarioComparison(g)}</div><div class="result-chart"><div><p class="eyebrow">THE FUTURE YOU CREATED</p><h3>${uplift >= 0 ? "+" : ""}${money.format(uplift)} vs unmanaged path</h3></div>${gameResultChart(g.history)}</div><div class="achievement-grid">${achievements.map(([icon,title,copy]) => `<div><b>${icon}</b><span><strong>${title}</strong><small>${copy}</small></span></div>`).join("")}</div><div class="result-actions"><button type="button" class="secondary-button" id="rewindFuture">↶ Rewind one decision</button><button type="button" class="primary-button" id="shareGameRm">Share this future with Jamie</button><button type="button" class="text-button" id="restartGame">Play again</button></div><div class="rm-handoff result-handoff" id="gameHandoff" hidden><span>✓</span><div><strong>Jamie received more than a product lead</strong><small>Priority: family liquidity · Main trade-off: ${escapeHtml(g.choices[1]?.label || "daycare")} · Protection: ${g.protection}/100 · Customer requested a conversation.</small></div></div>`;
   $("#rewindFuture").addEventListener("click", renderRewindChoices);
   $("#restartGame").addEventListener("click", () => { state.game = newGame(); renderPlayFuture(); });
   $("#shareGameRm").addEventListener("click", () => { $("#gameHandoff").hidden = false; $("#shareGameRm").textContent = "Shared with Jamie ✓"; $("#shareGameRm").disabled = true; showToast("Your future and priorities were shared with Jamie ✓"); });
@@ -1066,20 +1574,35 @@ function buyOrEquipAvatarItem(id) {
 }
 
 function setFutureExperience(name) {
-  const canvas = name === "canvas";
-  $("#gameExperience").hidden = canvas;
-  $("#canvasExperience").hidden = !canvas;
-  $("#gameExperience").classList.toggle("active", !canvas);
-  $("#canvasExperience").classList.toggle("active", canvas);
-  $("#experienceTabs").querySelectorAll("[data-experience]").forEach((button) => {
+  const panels = {
+    goal: $("#goalExperience"),
+    game: $("#gameExperience"),
+    canvas: $("#canvasExperience"),
+  };
+  for (const [key, el] of Object.entries(panels)) {
+    if (!el) continue;
+    const on = key === name;
+    el.hidden = !on;
+    el.classList.toggle("active", on);
+  }
+  $("#experienceTabs")?.querySelectorAll("[data-experience]").forEach((button) => {
     const active = button.dataset.experience === name;
     button.classList.toggle("active", active);
     button.setAttribute("aria-selected", String(active));
   });
-  if (canvas) renderFutureCanvas();
+  if (name === "goal") refreshGoalPlan();
+  if (name === "canvas") renderFutureCanvas();
+  if (name === "game") renderPlayFuture();
 }
 
 function renderFutureCanvas() {
+  const d = activeTwinDetails();
+  const firstName = activeTwinFirstName();
+  if ($("#canvasPersonaEyebrow")) $("#canvasPersonaEyebrow").textContent = `FUTURE CANVAS · PERSONALISED FOR ${firstName.toUpperCase()}`;
+  if ($("#canvasProfileTags")) {
+    const tags = [d.age && d.age !== "—" ? `Age ${d.age}` : null, d.context, d.tier].filter(Boolean);
+    $("#canvasProfileTags").innerHTML = tags.map((t) => `<span>${escapeHtml(t)}</span>`).join("");
+  }
   renderEventPalette();
   renderDropTimeline();
   renderCanvasWorld();
@@ -1139,7 +1662,7 @@ function renderCanvasWorld() {
   $("#worldFamily").classList.toggle("visible", ids.has("second-child") || ids.has("eldercare"));
   $("#worldRing").classList.toggle("visible", ids.has("wedding"));
   $("#futureWorld").classList.toggle("world-busy", selected.reduce((sum, event) => sum + event.stress, 0) > 22);
-  $("#worldCaption").textContent = selected.at(-1)?.caption || "Add a life event to begin building Amira's future.";
+  $("#worldCaption").textContent = selected.at(-1)?.caption || `Add a life event to begin building ${activeTwinFirstName()}'s future.`;
 
   const upfront = selected.reduce((sum, event) => sum + event.cost, 0);
   const monthly = selected.reduce((sum, event) => sum + event.monthly, 0);
@@ -1185,6 +1708,7 @@ function rewindGame(choicePosition) {
 function renderPlayFuture() {
   if (!state.scenario || !$("#gameRound")) return;
   if (!state.game) state.game = newGame();
+  if ($("#gamePlayerName")) $("#gamePlayerName").textContent = activeTwinFirstName();
   renderGameHud();
   renderGameTimeline();
   renderRoom();
@@ -1214,7 +1738,7 @@ function twinPathLabel(branch) {
 }
 
 function twinMetaLabel(message) {
-  const d = customerDetails[state.scenarioId];
+  const d = customerDetails[activeTwinId()];
   const firstName = d?.fullName?.split(" ")[0] || "You";
   const path = twinPathLabel(message.branch);
 
@@ -1224,7 +1748,7 @@ function twinMetaLabel(message) {
   if (message.source === "error") {
     return `Future ${firstName} · Unavailable`;
   }
-  if (message.source === "openai") {
+  if (isLiveLlm(message.source)) {
     return path ? `Future ${firstName} · ${path}` : `Future ${firstName} · Live`;
   }
   // cached-demo / cached-demo-fallback — keep demo plumbing out of the UI
@@ -1234,10 +1758,13 @@ function twinMetaLabel(message) {
 function renderFutureThread() {
   const el = $("#futureThread");
   if (!el) return;
-  const d = customerDetails[state.scenarioId];
+  const started = state.futureMessages.length > 0;
+  if ($("#intentSamples")) $("#intentSamples").hidden = started;
+  if ($("#intentSend")) $("#intentSend").textContent = started ? "Reshape this future" : "Show me that future";
+  const d = customerDetails[activeTwinId()] || { initials: "FY", fullName: "You" };
   if (!state.futureMessages.length) {
     const path = twinPathLabel(state.futureBranch)?.toLowerCase() || state.futureBranch;
-    el.innerHTML = `<div class="chat-empty"><div class="profile-avatar">${escapeHtml(d.initials)}</div><p><strong>Future ${escapeHtml(d.fullName.split(" ")[0])}</strong> is ready.</p><small>Ask how this life event changes liquidity over the next year on the <b>${escapeHtml(path)}</b>.</small></div>`;
+    el.innerHTML = `<div class="chat-empty"><div class="profile-avatar">${escapeHtml(d.initials)}</div><p><strong>Future ${escapeHtml(d.fullName.split(" ")[0])}</strong> is ready.</p><small>Type <b>I am going to be…</b> above, or ask how this event changes liquidity on the <b>${escapeHtml(path)}</b>.</small></div>`;
     return;
   }
   el.innerHTML = state.futureMessages
@@ -1248,7 +1775,7 @@ function renderFutureThread() {
       if (m.role === "thinking") {
         return `<div class="chat-bubble twin thinking" aria-live="polite"><span class="chat-meta">${escapeHtml(twinMetaLabel(m))}</span><p><span class="thinking-dots" aria-hidden="true"><i></i><i></i><i></i></span>${escapeHtml(m.text)}</p></div>`;
       }
-      return `<div class="chat-bubble twin"><span class="chat-meta">${escapeHtml(twinMetaLabel(m))}</span><p>${escapeHtml(m.text)}</p></div>`;
+      return `<div class="chat-bubble twin"><span class="chat-meta">${escapeHtml(twinMetaLabel(m))}</span><p>${escapeHtml(m.text)}</p>${m.cites ? `<small class="cite-chip">${escapeHtml(m.cites)}</small>` : ""}</div>`;
     })
     .join("");
   el.scrollTop = el.scrollHeight;
@@ -1283,10 +1810,17 @@ async function askFutureYou(question) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          scenarioId: state.scenarioId,
+          scenarioId: activeTwinId(),
           branch: state.futureBranch,
           question: q,
           sessionId: state.futureSessionId,
+          usePlan: true,
+          goal: readGoalForm(),
+          levers: {
+            spendCutPct: Number($("#goalCut")?.value || 0),
+            extraMonthly: Number($("#goalExtra")?.value || 0),
+          },
+          userIntent: state.lastIntentText || q,
         }),
       }),
       new Promise((resolve) => setTimeout(resolve, 700)),
@@ -1297,6 +1831,7 @@ async function askFutureYou(question) {
       text: result.answer,
       source: result.source,
       branch: state.futureBranch,
+      cites: (result.sentences || []).map((row) => row.cite).join(" · "),
     });
   } catch (error) {
     state.futureMessages = state.futureMessages.filter((m) => m.role !== "thinking");
@@ -1317,11 +1852,13 @@ function bindActions() {
   $("#generateBrief").addEventListener("click", () => {
     setTimelineStep(4);
     openBrief();
+    postJson("/api/demo/event", { type: "brief" }).then(loadDemoMetrics).catch(() => {});
   });
   $("#closeBrief").addEventListener("click", () => $("#briefDialog").close());
   $("#doneBrief").addEventListener("click", () => {
     $("#briefDialog").close();
     showToast("Brief added to client timeline ✓");
+    postJson("/api/demo/event", { type: "meeting" }).then(loadDemoMetrics).catch(() => {});
   });
   $("#copyBrief").addEventListener("click", async () => {
     await navigator.clipboard?.writeText($("#briefContent").innerText);
@@ -1330,6 +1867,7 @@ function bindActions() {
   $("#showEvidence").addEventListener("click", openEvidence);
   $("#closeEvidence").addEventListener("click", () => $("#evidenceDialog").close());
   $("#emailFutureLink")?.addEventListener("click", openShareFuture);
+  $("#twinEmptyInvite")?.addEventListener("click", openShareFuture);
   $("#closeShareFuture")?.addEventListener("click", () => $("#shareFutureDialog").close());
   $("#copyFutureLink")?.addEventListener("click", async () => {
     await navigator.clipboard?.writeText($("#shareFutureLink").textContent);
@@ -1337,6 +1875,14 @@ function bindActions() {
   });
   $("#previewFutureLink")?.addEventListener("click", () => window.open($("#shareFutureLink").textContent, "_blank", "noopener"));
   $("#sendFutureEmail")?.addEventListener("click", openFutureEmail);
+  $("#adhocSample")?.addEventListener("click", () => {
+    $("#adhocInput").value = JSON.stringify(WEDDING_ADHOC_SAMPLE, null, 2);
+  });
+  $("#runAdhoc")?.addEventListener("click", runAdhocFromUi);
+  $("#runCompare")?.addEventListener("click", runCompareFromUi);
+  $("#demoReset")?.addEventListener("click", () => {
+    resetDemoState().catch((error) => showToast(error.message));
+  });
   $("#viewAllCustomers")?.addEventListener("click", () => setView("customers"));
   $("#backToToday")?.addEventListener("click", () => setView("today"));
   $("#homeOpenTwin")?.addEventListener("click", () => openClient(state.homePreviewId || state.scenarioId));
@@ -1359,7 +1905,6 @@ function bindActions() {
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
       if (btn.dataset.view === state.view) return;
-      if (btn.dataset.view === "future" && state.scenarioId !== "new-parent") await loadScenario("new-parent");
       setView(btn.dataset.view);
     });
   });
@@ -1374,18 +1919,77 @@ function bindActions() {
       renderFutureThread();
     });
   });
+  $("#intentForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = String($("#intentInput")?.value || "").trim();
+    if (!text) return;
+    submitLifeIntent(text)
+      .then(() => {
+        if ($("#intentInput")) $("#intentInput").value = "";
+        return askFutureYou(text);
+      })
+      .catch((error) => showToast(error.message));
+  });
+  $("#intentSamples")?.querySelectorAll("[data-intent]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const text = String(btn.dataset.intent || "").trim();
+      if (!text) return;
+      if ($("#intentInput")) $("#intentInput").value = text;
+      submitLifeIntent(text)
+        .then(() => askFutureYou(text))
+        .catch((error) => showToast(error.message));
+    });
+  });
+  $("#adhocFile")?.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      $("#adhocInput").value = String(reader.result || "");
+      runAdhocFromUi().catch((error) => showToast(error.message));
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
   $("#futureForm")?.addEventListener("submit", (e) => {
     e.preventDefault();
     const input = $("#futureInput");
     const q = String(input?.value || "").trim();
     if (!q) return;
     if (input) input.value = "";
-    askFutureYou(q);
+    const go = looksLikeIntent(q) ? submitLifeIntent(q).then(() => askFutureYou(q)) : askFutureYou(q);
+    Promise.resolve(go).catch((error) => showToast(error.message));
   });
   $("#openAvatarStudio")?.addEventListener("click", () => { renderAvatarStudio(); $("#avatarStudio").showModal(); });
   $("#closeAvatarStudio")?.addEventListener("click", () => $("#avatarStudio").close());
   $("#avatarColours")?.querySelectorAll("[data-colour]").forEach((button) => button.addEventListener("click", () => { state.avatarProfile.colour = button.dataset.colour; renderAvatarStudio(); applyAvatarProfile(); }));
   $("#experienceTabs")?.querySelectorAll("[data-experience]").forEach((button) => button.addEventListener("click", () => setFutureExperience(button.dataset.experience)));
+  $("#shareGoalPlan")?.addEventListener("click", () => {
+    shareGoalPlan().catch((error) => showToast(error.message));
+  });
+  $("#suggestLevers")?.addEventListener("click", () => {
+    suggestLeversFromUi().catch((error) => showToast(error.message));
+  });
+  $("#funMode")?.addEventListener("change", () => {
+    document.body.classList.toggle("fun-mode", $("#funMode").checked);
+    if (!$("#funMode").checked) setFutureExperience("goal");
+  });
+  $("#goalCustomer")?.addEventListener("change", () => {
+    state.goalTouched = false;
+    state.goalCustomerId = $("#goalCustomer").value;
+    state.futureMessages = [];
+    state.game = null;
+    if ($("#leverSuggestions")) $("#leverSuggestions").innerHTML = "";
+    renderFutureThread();
+    refreshGoalPlan();
+    if ($("#gameExperience")?.classList.contains("active")) renderPlayFuture();
+    if ($("#canvasExperience")?.classList.contains("active")) renderFutureCanvas();
+  });
+  $("#goalForm")?.addEventListener("submit", (e) => e.preventDefault());
+  $("#goalForm")?.addEventListener("input", () => {
+    state.goalTouched = true;
+    scheduleGoalPlan();
+  });
   $("#eventFilters")?.querySelectorAll("[data-category]").forEach((button) => button.addEventListener("click", () => { state.futureCanvas.filter = button.dataset.category; $("#eventFilters").querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === button)); renderEventPalette(); }));
   $("#clearCanvas")?.addEventListener("click", () => { state.futureCanvas.events = []; renderFutureCanvas(); showToast("Future canvas cleared"); });
   $("#connectionList")?.querySelectorAll("[data-provider]").forEach((button) => button.addEventListener("click", () => { const provider = button.dataset.provider; state.futureCanvas.connections = state.futureCanvas.connections.includes(provider) ? state.futureCanvas.connections.filter((x) => x !== provider) : [...state.futureCanvas.connections, provider]; renderConnections(); renderCanvasWorld(); showToast(`${provider} ${state.futureCanvas.connections.includes(provider) ? "connected with consent" : "disconnected"}`); }));
@@ -1398,17 +2002,17 @@ function futureInviteUrl() {
   url.search = "";
   url.hash = "";
   url.searchParams.set("future", "client");
-  url.searchParams.set("scenario", state.scenarioId);
-  url.searchParams.set("invite", `demo-${state.scenarioId}`);
+  url.searchParams.set("scenario", activeTwinId());
+  url.searchParams.set("invite", `demo-${activeTwinId()}`);
   return url.toString();
 }
 
 function openShareFuture() {
-  const d = customerDetails[state.scenarioId];
-  const firstName = d.fullName.split(" ")[0];
-  $("#shareInitials").textContent = d.initials;
-  $("#shareClientName").textContent = d.fullName;
-  $("#shareClientEmail").value = `${d.fullName.toLowerCase().replace(/[^a-z]+/g, ".").replace(/^\.|\.$/g, "")}@example.com`;
+  const d = customerDetails[activeTwinId()] || customerDetails[state.scenarioId];
+  const firstName = d?.fullName?.split(" ")[0] || "there";
+  $("#shareInitials").textContent = d?.initials || "FY";
+  $("#shareClientName").textContent = d?.fullName || "Customer";
+  $("#shareClientEmail").value = `${String(d?.fullName || "customer").toLowerCase().replace(/[^a-z]+/g, ".").replace(/^\.|\.$/g, "")}@example.com`;
   $("#shareFutureLink").textContent = futureInviteUrl();
   $("#shareEmailMessage").value = `Hi ${firstName},\n\nI’d like to invite you to try Future You, a private interactive experience that lets you explore different financial choices and see how they could shape the next 12 months.\n\nIt is illustrative, not financial advice, and you can decide whether to share your results with me.\n\nRegards,\nJamie`;
   $("#shareFutureDialog").showModal();
@@ -1559,9 +2163,23 @@ function openBrief() {
 
 function openEvidence() {
   const i = state.intelligence;
-  const p = i.persona;
-  const f = i.features;
-  $("#evidenceContent").innerHTML = `<div class="pipeline"><span>TRANSACTIONS</span><b>→</b><span>DERIVED FEATURES</span><b>→</b><span>EVENT MODEL</span><b>→</b><span>SUITABILITY</span></div><section><p class="eyebrow">CUSTOMER PERSONA · BANK RECORD</p><div class="persona-facts"><div><span>Employer</span><b>${p.employer}</b></div><div><span>Risk profile</span><b>${p.riskProfile}</b></div><div><span>Dependants</span><b>${p.dependants}</b></div><div><span>Products held</span><b>${p.productsHeld.join(", ")}</b></div></div></section><section><p class="eyebrow">MODEL EVIDENCE</p>${i.event.evidence.map((e) => `<div class="evidence-row"><span><b>${e.label}</b><small>${e.source.replaceAll("_", " ")}</small></span><strong>${e.value}</strong><em>${Math.round(e.confidence * 100)}%</em></div>`).join("")}<p class="alternative"><b>Alternative considered:</b> ${i.event.alternativeHypothesis}</p></section><section><p class="eyebrow">SOURCE TRANSACTIONS · ${f.transactionCount} RECORDS / ${f.transactionWindowDays} DAYS${f.accountCount ? ` / ${f.accountCount} ACCOUNTS` : ""}</p><div class="transaction-table">${i.transactions.map((t) => `<div><span>${t.date || t.postDate}</span><b>${escapeHtml(t.merchantRaw || t.description)}</b><small>${t.category}${t.channel ? ` · ${t.channel}` : ""}</small><strong class="${t.amount >= 0 ? "credit" : ""}">${t.amount >= 0 ? "+" : ""}${money.format(t.amount)}</strong></div>`).join("")}</div></section><section><p class="eyebrow">SUITABILITY CHECKS</p>${i.products.map((p) => `<div class="suitability-row"><b>${p.name}</b><span>${p.guardrails.map((g) => `${g.passed ? "✓" : "×"} ${g.name}`).join(" · ")}</span><strong>${p.fit}% fit</strong></div>`).join("")}</section><div class="compliance-note">AI source: ${i.source}${i.model ? ` (${i.model})` : ""}. Event confidence is derived from weighted, independent evidence. Product eligibility is rules-based; AI only explains eligible results.</div>`;
+  const p = i.persona || {};
+  const f = i.features || {};
+  const evidence = i.event?.evidence || [];
+  const txs = i.transactions || [];
+  const products = i.products || [];
+  const hypo = i.event?.llmHypotheses || [];
+  const dropped = i.event?.llmDropped || [];
+  const hypoBlock =
+    hypo.length || dropped.length
+      ? `<section><p class="eyebrow">LLM HYPOTHESIS (LLM_DETECT)</p>${hypo.map((h) => `<p><b>Kept ${escapeHtml(h.type)}</b> — local scorer already supports it. ${escapeHtml(h.why || "")}</p>`).join("")}${dropped.map((h) => `<p><b>Dropped ${escapeHtml(h.type || "")}</b> — ${escapeHtml(h.reason || "not supported by local scorer")}</p>`).join("")}<p class="alternative">LLM never sets confidence. Merchant hints are not applied to the ledger.</p></section>`
+      : "";
+  $("#evidenceContent").innerHTML = `<div class="pipeline"><span>TRANSACTIONS</span><b>→</b><span>DERIVED FEATURES</span><b>→</b><span>EVENT MODEL</span><b>→</b><span>SUITABILITY</span></div><section><p class="eyebrow">CUSTOMER PERSONA · BANK RECORD</p><div class="persona-facts"><div><span>Employer</span><b>${escapeHtml(p.employer || "—")}</b></div><div><span>Risk profile</span><b>${escapeHtml(p.riskProfile || "—")}</b></div><div><span>Dependants</span><b>${p.dependants ?? "—"}</b></div><div><span>Products held</span><b>${escapeHtml((p.productsHeld || []).join(", ") || "—")}</b></div></div></section><section><p class="eyebrow">MODEL EVIDENCE</p>${evidence
+        .map((e) => {
+          const pct = e.scoreWeight != null ? Math.max(0, Math.min(100, Math.round(e.scoreWeight * 100))) : null;
+          return `<div class="evidence-row"><span><b>${escapeHtml(e.label)}</b><small>${e.source.replaceAll("_", " ")}${pct != null ? ` · +${pct} pts toward confidence` : ""}${e.id ? ` · ${e.id}` : ""}${(e.txnIds || []).length ? ` · tx ${e.txnIds.join(", ")}` : ""}</small>${pct != null ? `<div class="weight-track"><i style="width:${pct}%"></i></div>` : ""}</span><strong>${escapeHtml(e.value)}</strong><em>${Math.round(e.confidence * 100)}%</em></div>`;
+        })
+        .join("")}<p class="alternative"><b>Score:</b> ${evidence.map((e) => e.scoreWeight || 0).reduce((n, w) => n + w, 0).toFixed(2)} raw → ${Math.round(i.event.confidence * 100)}% displayed. <b>Alternative considered:</b> ${escapeHtml(i.event.alternativeHypothesis || "")}${i.citations?.length ? ` <b>Citations:</b> ${i.citations.join(", ")}` : ""}</p></section>${hypoBlock}<section><p class="eyebrow">SOURCE TRANSACTIONS · ${f.transactionCount || txs.length} RECORDS / ${f.transactionWindowDays || 0} DAYS${f.accountCount ? ` / ${f.accountCount} ACCOUNTS` : ""}</p><div class="transaction-table">${txs.map((t) => `<div><span>${t.date || t.postDate}</span><b>${escapeHtml(t.merchantRaw || t.description)}</b><small>${t.category}${t.channel ? ` · ${t.channel}` : ""}</small><strong class="${t.amount >= 0 ? "credit" : ""}">${t.amount >= 0 ? "+" : ""}${money.format(t.amount)}</strong></div>`).join("")}</div></section><section><p class="eyebrow">SUITABILITY CHECKS</p>${products.map((prod) => `<div class="suitability-row"><b>${escapeHtml(prod.name)}</b><span>${(prod.guardrails || []).map((g) => `${g.passed ? "✓" : "×"} ${g.name}`).join(" · ")}</span><strong>${prod.fit}% fit</strong></div>`).join("") || "<p>No eligible products for this ledger.</p>"}</section><div class="compliance-note">AI source: ${i.source}${i.model ? ` (${i.model})` : ""}. Event confidence is derived from weighted, independent evidence. Product eligibility is rules-based; AI only explains eligible results.</div>`;
   $("#evidenceDialog").showModal();
 }
 

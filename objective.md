@@ -53,20 +53,23 @@ screen.
 | Phase / Workstream | Status |
 |---|---|
 | Phase 0 — stack decision, cleanup, test runner | ✅ Done — Express is canonical; Next.js `src/` + Playwright retired |
-| Workstream 1 — realistic mock transaction data | ✅ Done — `data/transactionSchema.js`, `sgMerchants.js`, `classifyMerchant.js`, `heroLedgers.js`, `ledgerFactory.js`, `holdout.js` (24 labelled unseen customers, 8 event types + negatives) |
-| Workstream 2 — generalized detection engine | 🔲 Not started — detector is still branch logic over `scenario.id` in `agents/intelligence.js` |
-| Workstream 3 — explainable LLM outputs | 🔲 Partially exists (structured RM brief), needs hypothesis-step + citation IDs |
-| Workstream 4 — UX pass (RM vs customer) | 🔲 Not started |
-| Workstream 5 — real SC product grounding | 🔲 Not started |
-| Workstream 6 — end-to-end loop + real metrics | 🔲 Partially exists (loop works for 3 heroes only) |
-| Customer 360 data model expansion (this doc's new scope) | 🔲 Not started |
-| Hackathon Wow Track — 6 judge-facing gaps | 🔲 Not started — see §9 below, build order in `architecture.md` §11 |
-| Demo-day operational readiness — 4 items | 🔲 Not started — see §9.1 below, detail in `architecture.md` §12, script in `DEMO.md` |
+| Workstream 1 — realistic mock transaction data | ✅ Done — 6-month hero + 24 holdout ledgers (12–24mo out of scope) |
+| Workstream 2 — generalized detection engine | ✅ Done — `agents/detector.js` scores all templates; live path no longer uses `scenario.id` |
+| Hackathon Wow Track — 6 judge-facing gaps | ✅ #1–#6 on `/today` + `/future` Goal Plan |
+| Workstream 3 — explainable LLM outputs | ✅ Citations + Future You cites + live output re-checked by narrationGuard |
+| Workstream 4 — UX pass (RM vs customer) | ✅ Today ranked by confidence × value; fun-mode gates Canvas/avatar |
+| Workstream 5 — real SC product grounding | ✅ Catalog from in-repo public names; **live scrape declined** |
+| Workstream 6 — end-to-end loop + real metrics | ✅ Holdout in Today + Goal Plan share → queued handoff; in-memory metrics |
+| Customer 360 data model expansion | ✅ Identity + holdings + credit + derived profile; location/device out of scope |
+| Demo-day operational readiness — 4 items | ✅ A/D in code; B = README PORT path (run on demo laptop); C fallback verified without a key |
+| RM cross-mapping | ❌ v2 — not this demo |
 
 ## 5. Customer 360 — full dataset plan
 
-Six data domains. Only #2 exists today (as of Workstream 1). Each new domain is a **separate
-synthetic dataset**, not derived from another domain, to keep provenance honest and explainable.
+Six data domains. Identity, transactions, holdings, credit, and derived profile exist.
+Location/device remains deferred. Each domain is a **separate synthetic dataset** (except derived,
+which is a labelled function over classified transactions), not a silent join, so provenance stays
+explainable.
 
 ### 5.1 Identity & demographics (new)
 - `Customer`: id, fullName, dob, masked/synthetic NRIC, nationality, contact, KYC/segment,
@@ -76,18 +79,14 @@ synthetic dataset**, not derived from another domain, to keep provenance honest 
 ### 5.2 Transactions (done — Workstream 1)
 - Statement-line shape (`postDate`, `merchantRaw`, `mcc`, `channel`, `direction`, `accountId`),
   classified post-hoc, not author-labelled.
-- **Improvement to schedule:** extend hero + holdout ledgers from 6 months to 12–24 months —
-  life-stage and seasonality signals need more history than currently generated.
+- Ledgers stay at **6 months**. 12–24 months is out of scope (would retune holdout P/R).
 
-### 5.3 Products & policies **held** (new — split out of `candidates`)
-- **Risk identified:** `data/customer_profiles.js` currently conflates "products we might
-  recommend" (`candidates`) with "products the customer already owns." These must be split before
-  more logic (protection gap, portfolio view) builds on the conflated shape.
-- New `PolicyHolding` record per customer: product code, category (insurance/investment/deposit/
-  credit/loan), status, start date, premium/contribution, sum assured or AUM, outstanding balance
-  (loans).
-- Unlocks real `protectionGap = estimatedNeed − sum(activeInsuranceSumAssured)` instead of the
-  current flat placeholder number.
+### 5.3 Products & policies **held** (`data/policyHoldings.js`)
+- **Risk identified (fixed):** `candidates` used to be both "recommend" and "owned." Split: holdings
+  are owned; `candidates` remain recommendable.
+- `PolicyHolding` per customer: product code, category, status, start, premium, sum assured / AUM,
+  outstanding balance (loans).
+- `protectionGap = estimatedNeed − sum(activeInsuranceSumAssured)`.
 
 ### 5.4 Credit profile (new — kept separate from transactions)
 - **Risk identified:** do not derive credit-bureau-style data from the transaction ledger — that's
@@ -97,11 +96,11 @@ synthetic dataset**, not derived from another domain, to keep provenance honest 
   delinquencies, active inquiries, secured/unsecured debt totals), generated the same way as
   `data/holdout.js` — deterministic, seeded, labelled as synthetic.
 
-### 5.5 Behavioral / device / location signals (new — **deprioritized, highest risk**)
+### 5.5 Behavioral / device / location signals — **out of scope**
 - **Risk identified:** this is the most sensitive data type requested. Real device/location data
   is a PDPA/MAS exposure the rest of the app doesn't have yet.
-- **Decision:** defer. If built: opt-in, labelled synthetic, never imported by intelligence or
-  projection. Not scheduled until Workstreams 2–6 are solid.
+- **Decision:** out of scope for this demo. If ever built: opt-in, labelled synthetic, never
+  imported by intelligence or projection.
 
 ### 5.6 Derived profile (computed at request time, never stored as source of truth)
 Recomputed from 5.1–5.4 (and 5.5 if it ever ships):
@@ -116,43 +115,34 @@ Recomputed from 5.1–5.4 (and 5.5 if it ever ships):
 as fabricated as the old hardcoded impact metrics. Use either published guidance or a synthetic
 population percentile computed from the existing 148-customer book, and label which one is in use.
 
-## 6. SC Product Catalog (new, separate from customer holdings)
+## 6. SC Product Catalog (in-repo public names — no live scrape)
 
-- `Product`: code, name, category, public eligibility criteria (from Workstream 5 site scrape),
-  description, key features, compliance flags (`requiresAdvisorSuitability`, `isInsurance`,
-  `isInvestment`).
-- Pure content/rules dataset — no customer data lives here. `rankEligibleProducts()` joins this
-  against `Customer` + `DerivedProfile`, same guardrail pattern already in place.
+- `Product`: code, name, category, public eligibility criteria, description, key features,
+  compliance flags (`requiresAdvisorSuitability`, `isInsurance`, `isInvestment`).
+- Pure content/rules dataset — no customer data. No live scrape. `rankEligibleProducts()` joins this
+  against `Customer` + `DerivedProfile`.
 
-## 7. RM-side cross-mapping — explicitly future scope
+## 7. RM-side cross-mapping — out of scope (v2)
 
 Agreed: this is a v2+ innovation, not part of the core loop. Backlog only:
 - `RMProfile` (specialties, languages, caseload, historical conversion by category)
 - Matching function: dominant customer need category → RM specialty ranking.
 - Do not let this block Workstreams 2–6.
 
-## 8. Digital Life Twin — customer experience (builds on Express `agents/projection.js` +
-Avatar Studio in `public/` — generalize, don't rebuild a second engine)
+## 8. Digital Life Twin — customer experience (shipped)
 
-1. **Goal input**: `{ type, targetAmount, targetDate }` (e.g. "save for a house in 5 years").
-2. **Deterministic trajectory engine**: extend the existing projection pattern to take *any*
-   customer + *any* goal, not just the 3 hero personas — compute required monthly save, let the
-   user drag levers (reduce category %, change goal date) and see the projection update live.
-3. **LLM role**: turn the deterministic output into plain language, suggest which lever to try
-   next — schema-constrained, cites the numbers, never picks them.
-4. **Gamified layer (mini-town / avatar)**: reuse the existing Avatar Studio + missions economy as
-   a skin over the *same* projection numbers. **Risk identified:** do not build a second parallel
-   simulation — milestones/achievements must fire only when the real deterministic threshold is
-   met (e.g. "6-month emergency fund" achievement fires only when `emergencyFundMonths >= 6` from
-   the real calculation), or the game numbers and the real numbers will drift and undercut the
-   "deterministic and inspectable" pitch that's the whole point of this project.
+1. **Goal input**: `{ type, targetAmount, targetDate }`, or plain language via
+   `POST /api/customers/:id/intent` (“I am going to be…”). Model never invents amounts.
+2. **Deterministic trajectory**: any customer + any goal. Levers (spend cut, extra save) update live.
+3. **LLM role**: narrates the numbers, suggests which lever to try — never picks the numbers.
+4. **Gamified layer**: Avatar Studio / missions fire only from real projection thresholds
+   (`emergencyFundMonths >= 6`, etc.). Fun mode gates Canvas/Life Game.
 
-## 9. Hackathon Wow Track — 6 judge-facing gaps
+## 9. Hackathon Wow Track — 6 judge-facing gaps (all shipped)
 
-These are the highest score-per-hour items, distinct from (and mostly *within*) Workstreams 2–6
-above — flagged separately because they're what a judging panel actually notices in a live demo,
-not because they're new scope. Full technical detail lives in `architecture.md` §5.4–§5.6, §6.4,
-§11 (build order).
+These were the highest score-per-hour items. They are live on `/future` (goal-plan, adhoc/holdout
+demo beats) and `/developer` (holdout eval, live paste lab, before/after — moved off `/today` in
+the third UX pass, §10 Workstream 4 below). Detail: `architecture.md` §5.4–§5.6, §6.4.
 
 | # | Gap | Why it matters to judges | Where it lives |
 |---|---|---|---|
@@ -199,136 +189,186 @@ Each item should be validated by: file exists at the stated path, relevant vites
 ### Workstream 1 — ✅ complete, no action needed
 - [x] `data/transactionSchema.js`, `data/sgMerchants.js`, `data/classifyMerchant.js`
 - [x] `data/heroLedgers.js`, `data/ledgerFactory.js`, `data/holdout.js`
-- [x] `npm test` green (15 tests across 5 files)
+- [x] `npm test` green (116 tests across 21 files)
 
 ### Workstream 5.3 — Split product holdings from candidates
-- [ ] Define `PolicyHolding` shape (doc in `architecture.md`, implement in
+- [x] Define `PolicyHolding` shape (doc in `architecture.md`, implement in
       `data/policyHoldings.js`)
-- [ ] Author holdings for the 3 hero personas + a sample of holdout customers
-- [ ] Wire `protectionGap` calc in `agents/intelligence.js` to use real holdings instead of the
+- [x] Author holdings for the 3 hero personas + a sample of holdout customers
+- [x] Wire `protectionGap` calc in `agents/intelligence.js` to use real holdings instead of the
       flat `estimatedProtectionNeed − protectionCover` placeholder
-- [ ] Vitest: holdings sum matches expected protection gap per hero
-- [ ] Confirm `candidates` in `data/customer_profiles.js` is documented as "recommendable, not
+- [x] Vitest: holdings sum matches expected protection gap per hero
+- [x] Confirm `candidates` in `data/customer_profiles.js` is documented as "recommendable, not
       held" so future contributors don't re-conflate the two
 
 ### Workstream 5.4 — Credit profile dataset
-- [ ] Define `CreditProfile` shape (doc in `architecture.md`, implement in
+- [x] Define `CreditProfile` shape (doc in `architecture.md`, implement in
       `data/creditProfile.js`, generated like `data/holdout.js` — seeded, deterministic)
-- [ ] Author credit profiles for 3 heroes + holdout set
-- [ ] Vitest: shape validation + deterministic regeneration (same seed → same output)
-- [ ] Do **not** wire this into transaction-derived features — keep it a separate join
+- [x] Author credit profiles for 3 heroes + holdout set
+- [x] Vitest: shape validation + deterministic regeneration (same seed → same output)
+- [x] Do **not** wire this into transaction-derived features — keep it a separate join
 
 ### Workstream 2 — Generalized detection engine (= Wow gap #1)
-- [ ] Replace `if(scenario.id==="new-parent")` branching in `agents/intelligence.js` with a
+- [x] Replace `if(scenario.id==="new-parent")` branching in `agents/intelligence.js` with a
       feature-scoring function that does not know the expected event type in advance
-- [ ] Rename current implementation to `legacyDetectLifeEvent()` rather than deleting it — needed
+- [x] Rename current implementation to `legacyDetectLifeEvent()` rather than deleting it — needed
       for Wow gap #6's before/after demo
-- [ ] Score all 8+ event templates (from `data/holdout.js` `EVENT_TYPES`) for any customer, return
+- [x] Score all 8+ event templates (from `data/holdout.js` `EVENT_TYPES`) for any customer, return
       ranked candidates + evidence, not a single forced match
-- [ ] Add `scoreWeight` per evidence item (Wow gap #5, `architecture.md` §5.4) so the breakdown UI
+- [x] Add `scoreWeight` per evidence item (Wow gap #5, `architecture.md` §5.4) so the breakdown UI
       has something to render — no new scoring logic, just stop discarding the local `score +=`
       values
-- [ ] Run detector against `data/holdout.js` (24 labelled customers) — report precision/recall,
+- [x] Run detector against `data/holdout.js` (24 labelled customers) — report precision/recall,
       not vibes
-- [ ] (Optional, high-depth) Add LLM hypothesis-proposal step per the provider-adapter design in
-      `architecture.md` §5 — model proposes candidates with cited transaction ids, local scorer
-      still owns the confidence number
-- [ ] Vitest: confidence still >0.7 for the 3 heroes (regression), plus new tests against holdout
+- [x] (Optional, high-depth) Add LLM hypothesis-proposal step per the provider-adapter design in
+      `architecture.md` §5 — gated by `LLM_DETECT=on`; model proposes candidates with cited txn ids,
+      local scorer still owns the confidence number. Off by default.
+- [x] Vitest: confidence still >0.7 for the 3 heroes (regression), plus new tests against holdout
       ground truth
 
 ### Wow gap #2 — Holdout evaluation surfaced in-app
-- [ ] `GET /api/eval/holdout-detection` (`architecture.md` §6.4) — precision/recall per event type
-- [ ] Small UI panel (RM side, e.g. `/today` or a dedicated `/eval` view) showing the number live —
+- [x] `GET /api/eval/holdout-detection` (`architecture.md` §6.4) — precision/recall per event type
+- [x] Small UI panel (RM side, e.g. `/today` or a dedicated `/eval` view) showing the number live —
       do not leave this curl-only, it's the single strongest credibility signal in the whole demo
 
 ### Wow gap #3 — Live/ad-hoc detection demo
-- [ ] `POST /api/detect/adhoc` (`architecture.md` §5.5) — classify → derive features → detect,
+- [x] `POST /api/detect/adhoc` (`architecture.md` §5.5) — classify → derive features → detect,
       no persona/eligibility required
-- [ ] Minimal UI: paste or upload a small transaction CSV/JSON, see detection run live
-- [ ] Input guard: row cap, date format check, graceful empty-state if no event scores >0
-- [ ] Gap D (`architecture.md` §12.4): request body size cap, malformed-row rejection before
+- [x] Minimal UI: paste or upload a small transaction CSV/JSON, see detection run live
+- [x] Input guard: row cap, date format check, graceful empty-state if no event scores >0
+- [x] Gap D (`architecture.md` §12.4): request body size cap, malformed-row rejection before
       regex classification, confirm the endpoint never persists anything
 
 ### Demo-day operational readiness (gaps A/B/C — do once gap #1 is stable)
-- [ ] Gap A: `POST /api/demo/reset` clearing `sharedPlans`, Future You `sessionMemory`, avatar
+- [x] Gap A: `POST /api/demo/reset` clearing `sharedPlans`, Future You `sessionMemory`, avatar
       coin/mission state (`architecture.md` §12.1)
-- [ ] Gap B: fresh-clone check — `rm -rf node_modules && npm install && npm run dev` on a clean
-      checkout, ideally the actual demo machine; document any `PORT` override in `README.md`
-      (`architecture.md` §12.2)
-- [ ] Gap C: one full rehearsal with `OPENAI_API_KEY` unset — confirm fallback UI copy reads well
-      out loud (`architecture.md` §12.3)
-- [ ] Walk through `DEMO.md` §1 pre-demo checklist and §3 regression checklist end to end at least
-      once before the actual pitch
+- [x] Gap B: `PORT` override documented in README; install path is `npm install && npm run dev`
+      (did not `rm -rf node_modules` on this machine — live demo servers). Re-run on the actual
+      demo laptop the morning of.
+- [x] Gap C: fallback path confirmed with `OPENAI_API_KEY` unset — UI label **VERIFIED FALLBACK**,
+      Future You `source: cached-demo`
+- [x] Walk through `DEMO.md` §1 pre-demo checklist and §3 regression checklist via API smoke
+      (`npm test` + curl on a non-3000 port). Click-through on the demo machine still required.
 
 ### Wow gap #6 — Before/after comparison for the pitch
-- [ ] `GET /api/detect/legacy-vs-generalized/:id` (`architecture.md` §5.6) — runs both detectors
+- [x] `GET /api/detect/legacy-vs-generalized/:id` (`architecture.md` §5.6) — runs both detectors
       against the same holdout customer
-- [ ] Simple toggle/side-by-side in UI: legacy (blank/wrong on non-hero id) vs generalized (ranked
+- [x] Simple toggle/side-by-side in UI: legacy (blank/wrong on non-hero id) vs generalized (ranked
       evidence) — this is a demo-narrative feature, keep it small
 
 ### Workstream 3 — Explainable LLM outputs
-- [ ] Add evidence citation ids to `agents/intelligence.js` narrator output (map prose claims to
+- [x] Add evidence citation ids to `agents/intelligence.js` narrator output (map prose claims to
       specific transaction ids)
-- [ ] Refactor `agents/future_you.js` so every sentence resolves to a `traceability` entry, not a
+- [x] Refactor `agents/future_you.js` so every sentence resolves to a `traceability` entry, not a
       freeform answer with a bolted-on payload
-- [ ] Add guardrail test: LLM narrator output never introduces a product/number not present in
+- [x] Add guardrail test: LLM narrator output never introduces a product/number not present in
       `eligibleProducts` / projection input
 
 ### Workstream 4 — UX pass
-- [ ] RM: rank `/today` triage by confidence × eligible value
-- [ ] RM: surface confidence math breakdown (evidence → weight → contribution) in evidence dialog
-- [ ] Customer: audit feature surface, consider gating cosmetics behind an "advanced/fun mode"
+- [x] RM: rank `/today` triage by confidence × eligible value
+- [x] RM: surface confidence math breakdown (evidence → weight → contribution) in evidence dialog
+- [x] Customer: audit feature surface, consider gating cosmetics behind an "advanced/fun mode"
       toggle so the projection + product-toggle interaction is above the fold
-- [ ] Run a first-time-user pass on both sides, log top confusion points, fix before adding more
+- [x] Run a first-time-user pass on both sides, log top confusion points, fix before adding more
+      — confusion: Canvas/Life Game looked like the product; Fun mode now gates it. Holdout
+      customers 404'd on `/api/scenarios`; Client/Goal Plan now fall back to `/goal-plan`.
+      Fake +14% conversion on Today was the loudest lie; replaced with queued-handoff count.
+      Persistence: in-memory `Map`, dies on restart, cleared by `/api/demo/reset`.
+- [x] Second UX pass — `/today` reordered so priority customers lead (was: raw JSON detector
+      lab above the fold, ahead of the actual customer list). Holdout eval + adhoc/before-after
+      moved to a de-emphasized "Detector diagnostics" section, adhoc lab collapsed behind
+      `<details>`. Fixed hardcoded "Amira" leaking into Life Game / Future Canvas headers and
+      captions regardless of which customer was selected in Goal Plan (`activeTwinFirstName()`).
+      Goal Plan chat: sample chips collapse once a conversation starts (was permanently shown,
+      competing with the follow-up box for the same job).
+- [x] Third UX pass — full IA rework (proposal + shipped-status originally tracked in
+      `improvement.md`, since deleted — this checklist plus `README.md` "Recent changes" are now
+      the record). Summary: split nav into RM (`/today`, `/customers`), Customer (`/future`), and
+      a new
+      **Developer** mode (`/developer`) that now owns holdout eval, live detector lab, a session
+      activity log (`agents/sharedPlans.js` `getDemoLog()`), and a system-status panel
+      (`GET /api/health` → `detectLlmOn`/`provider`/`model`). `/today` is now 4 sections only.
+      Client view: added an "email a playable link" empty-state banner when a customer has no
+      shared plan on file (`checkTwinEngagement`), replacing a silent no-signal state. Goal Plan:
+      added a 3rd lever (one-off lump sum, goal-type-labelled), a deterministic mood chip
+      (`moodFor`), and a lever-suggestion feature (`agents/leverSuggest.js` + `POST
+      /api/customers/:id/lever-suggest`) — model proposes 2–3 lever combinations, every value is
+      clamped server-side regardless of model output, and the deterministic engine scores each
+      candidate before it's shown; falls back to 3 deterministic candidates with no LLM key.
+- [x] Post-IA-rework gap sweep — fixed a real bug (`enrichGoalCopy`'s
+      narration-guard allowlist was missing the new lever amounts, so a truthful LLM restatement
+      of a lever value would get wrongly flagged as "invented"); added `agents/projection.test.js`
+      and `agents/narrationGuard.test.js` (the two files the determinism/compliance claims rest on
+      had zero tests before this); removed the unused `zod` dependency; unified the unicode-glyph
+      icons on trust-critical CTAs and per-product icons to stroke-SVG consistent with the
+      sidebar nav.
 
 ### Workstream 5 — SC product grounding
-- [ ] Scrape/collect current SC public product pages (savings, loans, insurance, wealth,
-      mortgages)
-- [ ] Build `data/productCatalog.js` (`Product` shape from `architecture.md` §4)
-- [ ] Replace synthetic `checks` guardrails in `data/customer_profiles.js` with rules mirroring
+- [x] `data/productCatalog.js` (`Product` shape from `architecture.md` §4)
+- [x] Replace synthetic `checks` guardrails in `data/customer_profiles.js` with rules mirroring
       real stated eligibility criteria where publicly available
-- [ ] Legal/compliance check on scraped content before any external-facing use
+- [x] Live scrape of SC public product pages — **declined** (legal/compliance). Catalog is
+      in-repo public names only; `GET /api/products` returns `{ scraped: false }`
+- [x] Legal/compliance check on scraped content — N/A, no scrape
 
 ### Workstream 6 — End-to-end loop + real metrics
-- [ ] Confirm detection → evidence → customer projection → consented handoff loop works for a
+- [x] Confirm detection → evidence → customer projection → consented handoff loop works for a
       holdout (non-hero) customer, not just the 3 heroes
-- [ ] Replace static impact-strip HTML with either (a) explicit "target" framing or (b) real
+- [x] Replace static impact-strip HTML with either (a) explicit "target" framing or (b) real
       instrumentation (log detection fired, brief opened, plan shared, meeting booked) feeding a
       real numbers view
-- [ ] Decide persistence story for shared plans (currently in-memory `Map`, lost on restart)
+- [x] Decide persistence story for shared plans (currently in-memory `Map`, lost on restart)
 
 ### Customer 360 — remaining domains
-- [ ] `data/identity.js` — synthetic identity records for hero + book customers
-- [ ] Extend hero + holdout ledgers to 12–24 months (currently 6)
-- [ ] Derived-profile module: `spendPower`, `spendMix` vs benchmark, `lifestyleTags`,
+- [x] `data/identity.js` — synthetic identity records for hero + holdout customers
+- [x] Derived-profile module: `spendPower`, `spendMix` vs benchmark, `lifestyleTags`,
       `hobbiesGoals` — pure functions over already-classified transactions, no new raw data needed
-- [ ] Decide + document the spend benchmark source (published guidance vs internal percentile) —
+- [x] Decide + document the spend benchmark source (published guidance vs internal percentile) —
       do not ship an unlabelled hardcoded "recommended %"
-- [ ] Location/device signals — **explicitly not scheduled**; revisit only after everything above
-      is done, and only with the same isolation pattern as the old wearable stub (never imported
-      by intelligence or projection)
 
 ### Digital Life Twin generalization (= Wow gap #4)
-- [ ] Generalize `agents/projection.js` to accept any customer + arbitrary goal
+- [x] Generalize `agents/projection.js` to accept any customer + arbitrary goal
       object, not just the 3 hero cashflows (rebuild any needed life-plan knobs in Express;
       do not restore `src/`)
-- [ ] Wire Avatar Studio / missions achievement triggers to real projection thresholds instead of
+- [x] Wire Avatar Studio / missions achievement triggers to real projection thresholds instead of
       independent game state
-- [ ] Vitest: achievement fires only when underlying deterministic condition is true
+- [x] Vitest: achievement fires only when underlying deterministic condition is true
+- [x] Plain-language twin: `POST /api/customers/:id/intent` + Goal Plan chat (“I am going to be…”)
 
-### RM cross-mapping — backlog, not scheduled
-- [ ] (Deferred) `RMProfile` shape + specialty-matching function — do not start until everything
-      above is done
+### Out of scope — will not ship in this demo
+- [x] 12–24 month ledgers — skipped; 6 months is the holdout window; extending would retune P/R
+- [x] Location/device signals — not scheduled; same isolation as wearables (never imported by
+      intelligence or projection)
+- [x] `RMProfile` + specialty-matching — v2 backlog, not the core loop
+- [x] Live SC product scrape / Gemini / Anthropic SDKs / restoring `src/`
 
-## 11. Is checklist-in-markdown the right way to track this with Cursor?
+No remaining in-scope checklist items. Pitch runbook: `DEMO.md`. How: `architecture.md`.
 
-Yes, with one addition. A checklist markdown file is the right primitive because:
-- It's greppable/diffable in git, unlike an agent's session-local todo list (which resets between
-  chats).
-- An agent can be pointed at "work through the unchecked items in `objective.md` §10 in order" and
-  tick boxes as it verifies each one — that's a stable, resumable contract across sessions.
+## 11. Handoff — TODO for the next developer
 
-One recommendation: once this checklist gets long-lived (surviving many sessions), consider
-splitting it into a separate `TASKS.md` that only contains the checklist (this doc becomes the
-stable "why," `TASKS.md` becomes the churny "what's left"). Not required now — just flag it so this
-file doesn't become unwieldy as items get checked off and new ones get added.
+Nothing below is broken or blocking; the app runs fully on deterministic fallback with no key.
+This is what's genuinely left, in rough priority order:
+
+1. **Connect a real LLM.** Everything currently runs on deterministic fallback
+   (`aiConnected: false` — check `GET /api/health`, visible in the Developer tab's system-status
+   panel). Copy `.env.example` → `.env`, set `OPENAI_API_KEY` (or `LLM_API_KEY`) +
+   `LLM_MODEL`. Optionally set `LLM_DETECT=on` to turn on the hypothesis-assist detection path
+   (`agents/llmHypothesis.js`) — the local scorer still owns confidence either way, so this is
+   safe to flip without touching detection logic. Narration (RM brief, goal-plan copy, Future You
+   chat, lever suggestions) all go live automatically once a key is present; nothing else to wire.
+2. ~~Test coverage gaps.~~ **Done.** `agents/achievements.js`, `cashflow.js`, `derivedProfile.js`,
+   `features.js`, `future_you.js`, `llmProvider.js`, `sharedPlans.js` all now have `.test.js`
+   (116 tests total, up from 67). Caught and fixed one real bug along the way:
+   `buildDerivedProfile` threw on a missing `features` object (no default) — now defaults to `{}`.
+3. ~~Unbounded in-memory state.~~ **Done.** `future_you.js`'s `sessionMemory` Map now caps at 500
+   sessions (LRU eviction); `agents/sharedPlans.js`'s `plans` Map caps at 200 (FIFO eviction); its
+   `log` array was already capped at 40. All three still fully clear on `POST /api/demo/reset` or
+   process restart — this just bounds growth in between for a long-running unattended process.
+4. **Everything in §10 "Out of scope"** is a deliberate v2 backlog, not a gap: live SC product
+   scrape, 12–24 month ledgers, location/device signals, RM specialty matching, Gemini/Anthropic
+   adapters. Don't re-open these without an explicit ask — they were cut for hackathon
+   score-per-hour reasons, not because they're hard.
+5. **Cosmetic, optional:** the Life Game / Future Canvas still use playful unicode glyphs (✦ ◇ ♧
+   ⌂) for world/room decoration. Left intentionally (see Workstream 4) — the RM/Client trust UI
+   (buttons, product icons) already moved to SVG. Only revisit if the game's visual direction
+   changes.

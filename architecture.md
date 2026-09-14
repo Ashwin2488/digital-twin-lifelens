@@ -8,8 +8,8 @@ a workstream lands.
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ 1. DATA LAYER                                                           │
-│    identity.js*  transactionSchema.js  policyHoldings.js*               │
-│    creditProfile.js*  productCatalog.js*  (behavior signals — deferred) │
+│    identity.js  transactionSchema.js  policyHoldings.js               │
+│    creditProfile.js  productCatalog.js  (behavior signals — deferred) │
 │    ── raw records only. no derived numbers, no LLM. ──                 │
 └──────────────────────────────┬────────────────────────────────────────┘
                                  ▼
@@ -27,7 +27,7 @@ a workstream lands.
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ 4. DETECTION LAYER  (Workstream 2 + Wow gaps #1 #2 #3 #5 #6)             │
-│    detector.js*: scores ALL event templates, unconditionally            │
+│    detector.js: scores ALL event templates, unconditionally               │
 │    optional LLM hypothesis step (§6.3) → still scored locally           │
 │    ── outputs: ranked events + evidence + confidence + citations ──     │
 └──────────────────────────────┬────────────────────────────────────────┘
@@ -40,7 +40,7 @@ a workstream lands.
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ 6. NARRATION LAYER (LLM, schema-constrained, cites layer 4/5 output)     │
-│    llmProvider.js* (OpenAI/Gemini/Anthropic) — RM brief, goal-plan copy, │
+│    llmProvider.js (OpenAI; other vendors fall back) — RM brief, goal-plan copy, │
 │    Future You chat — never computes a number, only explains one         │
 └──────────────────────────────┬────────────────────────────────────────┘
                                  ▼
@@ -48,10 +48,13 @@ a workstream lands.
 │ 7. EXPERIENCE LAYER                                                     │
 │    RM: Client 360 + evidence dialog + confidence breakdown (Wow #5)     │
 │    Customer: Digital Twin goal planner + Avatar/missions (real triggers)│
-│    Demo-only: live upload/paste (Wow #3), before/after toggle (Wow #6)  │
+│    Developer (/developer): holdout eval, live upload/paste (Wow #3),    │
+│    before/after toggle (Wow #6), session log, system status — split     │
+│    out of the RM's daily /today screen, not judge-only anymore          │
 └─────────────────────────────────────────────────────────────────────────┘
 
-*  = planned, not yet built. Everything else already exists in agents/ or data/.
+Out of scope (intentional, not leftover work): live SC product scrape, 12–24mo ledgers,
+location/device, RM specialty matching. See `objective.md` §10 “Out of scope.”
 ```
 
 Read top to bottom = request flow. Read bottom to top = "what does this number trace back to,"
@@ -63,12 +66,12 @@ which is the question every UI element in this app must be able to answer.
   `data/`. `npm run dev` → port 3000 (or `PORT=<n>` if occupied).
 - **Retired**: the incomplete Next.js port (`src/`), Playwright (`e2e/`, `playwright.config.ts`)
   were deleted. They never ran as the demo and would have been committed as dead weight. Domain
-  logic that lived only there (`lifePlan.ts`, etc.) will be rebuilt in Express when Wow gap #4
-  starts — do not resurrect `src/`.
+  logic that lived only there (`lifePlan.ts`, etc.) was rebuilt in Express (`agents/goalPlan.js`) —
+  do not resurrect `src/`.
 - **Test runner**: `vitest`, scoped to `data/**/*.test.js` and `agents/**/*.test.js` via
   `vitest.config.js`.
 
-## 2. Module layout (current + planned)
+## 2. Module layout (shipped)
 
 ```
 data/
@@ -83,27 +86,41 @@ data/
   customer_profiles.js     existing — hero personas + candidates (⚠ see §3.3 split)
   scenarios.js             existing — cashflow inputs for projection engine
 
-  policyHoldings.js        planned — PolicyHolding records (§3.3)
-  creditProfile.js         planned — synthetic bureau-style profile (§3.4)
-  identity.js              planned — synthetic identity records (§3.1)
-  productCatalog.js        planned — SC product content dataset (§4)
+  policyHoldings.js        existing — owned policies; candidates stay recommend-only
+  creditProfile.js         existing — synthetic bureau, not derived from ledger
+  identity.js              existing — synthetic identity, never NRIC-shaped
+  productCatalog.js        existing — public-name catalog, not a live scrape
 
 agents/
-  intelligence.js          existing — deriveFeatures + detectLifeEvent (⚠ branch logic, §5)
-                            + rankEligibleProducts + OpenAI narrator + deterministic fallback
+  intelligence.js          existing — deriveFeatures + rankEligibleProducts + narrator
+                            (detection lives in detector.js)
   future_you.js            existing — Future You chat, OpenAI + golden-answer fallback
   projection.js            existing — deterministic 12-month cashflow engine
+  features.js              existing — transaction feature extraction
+  detector.js              existing — generalized scorer + legacyDetectLifeEvent + holdout eval
+  adhocDetect.js            existing — paste/CSV → classify → detect, never persisted (§5.5)
+  cashflow.js              existing — any ledger → monthly income/spend/balance
+  goalPlan.js              existing — goal + levers on top of projectWithActions (Wow #4);
+                            also lumpSum lever + goal-type-labelled copy, moodFor() mood read
+  leverSuggest.js          existing — model proposes lever combinations, server clamps every
+                            value regardless of model output, engine scores each candidate
+                            before it's returned; deterministic fallback with no LLM key
+  achievements.js          existing — 6-month buffer / liquid / on-track from projection snapshot
+  derivedProfile.js        existing — spend mix vs DOS HES benchmark, lifestyle tags
+  narrationGuard.js        existing — assert narrator claims stay inside allowed amounts
+  sharedPlans.js           existing — in-memory consented handoffs + demo metrics
 
-  llmProvider.js           planned — provider adapter (OpenAI / Gemini / Anthropic), §6
-  detector.js              planned — generalized, non-branching detection engine, §5
+  llmProvider.js           existing — OpenAI adapter; Gemini/Anthropic fall back (§6)
+  llmHypothesis.js        existing — optional LLM_DETECT hypotheses, local scorer still owns confidence
+  intentParse.js           existing — “I am going to be…” → goal; never invents amounts
 
-server.js                  existing — Express routes (see §7 for current + planned surface)
+server.js                  existing — Express routes (see §7)
 public/                    existing — RM dashboard + customer game SPA (app.js, index.html)
 ```
 
 ## 3. Data model
 
-### 3.1 Identity (planned)
+### 3.1 Identity (`data/identity.js`)
 ```ts
 Customer {
   id: string
@@ -155,15 +172,13 @@ co-mingling). Seeded via `mulberry32(seed)` — deterministic, reproducible.
 `holdout.js` wraps 24 such customers with `groundTruth: { type, label, onsetMonth }`, exposed via
 `GET /api/holdout` (summary) and `GET /api/ledgers/:id` (full statement, hero or holdout id).
 
-**Planned extension:** grow hero + holdout ledgers from 6 to 12–24 months — current window is too
-short for seasonality-based life-stage signals.
+Ledgers stay at 6 months on purpose. Extending to 12–24 months would retune holdout precision/recall
+and is out of scope for this demo.
 
-### 3.3 Products & policies held (planned — split from `candidates`)
+### 3.3 Products & policies held (`data/policyHoldings.js`)
 
-⚠ **Current state:** `data/customer_profiles.js`'s `candidates` array is *recommendable* products
-only (`{name, type, annualValue, baseFit, reason, impact, monthlyImpact, checks}`), not what the
-customer already owns. There is currently no "holdings" concept — `protectionGap` is computed from
-a flat `baseline.estimatedProtectionNeed − baseline.protectionCover`, not from real policy records.
+⚠ **Split is live:** `candidates` = recommendable, `policyHoldings.js` = owned. `protectionGap`
+is `estimatedNeed − sum(active insurance sumAssuredOrAUM)`.
 
 ```ts
 PolicyHolding {
@@ -178,9 +193,8 @@ PolicyHolding {
 }
 ```
 `protectionGap = estimatedNeed − sum(holdings.filter(h => h.category==="insurance" && h.status==="active").map(h => h.sumAssuredOrAUM))`
-— replaces the flat placeholder once this ships.
 
-### 3.4 Credit profile (planned — standalone, not derived)
+### 3.4 Credit profile (`data/creditProfile.js` — standalone, not derived)
 
 ⚠ **Design constraint:** do not compute this from the transaction ledger. Real bureau data isn't
 observable from statement lines, and deriving it would silently blur provenance for every claim
@@ -228,7 +242,7 @@ DerivedProfile {
 guidance vs. computed percentile across the 148-customer book). Never ship an unlabelled hardcoded
 number here — that's the exact failure mode the eval flagged for the old impact-metrics strip.
 
-## 4. Product catalog (planned)
+## 4. Product catalog (`data/productCatalog.js` — in-repo public names, `scraped: false`)
 
 ```ts
 Product {
@@ -241,15 +255,17 @@ Product {
   complianceFlags: { requiresAdvisorSuitability, isInsurance, isInvestment: boolean }
 }
 ```
-Pure content dataset, populated from Workstream 5 (public SC product pages). No customer data.
-`rankEligibleProducts()` (in `agents/intelligence.js`, or its successor) joins this against
-`Customer` + `DerivedProfile`, replacing the currently-synthetic `checks` guardrail keys
-(`contactConsent`, `positiveSurplus`, `mortgageHolder`, `balancedRisk`, `growthRisk`) with rules
-mirroring real published eligibility criteria where available.
+Pure content dataset. No live scrape (legal/compliance). `GET /api/products` returns
+`{ scraped: false }`. `rankEligibleProducts()` joins catalog + customer + derived profile; eligibility
+`checks` mirror publicly stated criteria where we have them, not a live site pull.
 
 ## 5. Detection engine (Workstream 2 — the core rewrite)
 
-**Current implementation** (`agents/intelligence.js`):
+**Live implementation** (`agents/detector.js`): `detectLifeEvents(features, profile)` scores every
+template in `EVENT_TYPES`. The live path does not take a `scenario.id`. `legacyDetectLifeEvent()`
+is kept only for Wow #6 before/after.
+
+**What it replaced:**
 ```js
 function detectLifeEvent(profile, scenario, f) {
   if (scenario.id === "new-parent") { /* score only new-parent signals */ }
@@ -262,7 +278,7 @@ This only works because the caller (`buildCustomerIntelligence(profile, scenario
 in the expected `scenario.event.type` — the function confirms a hypothesis it's handed, it doesn't
 form one.
 
-**Target design:**
+**Shipped:**
 ```js
 function detectLifeEvents(features, profile) {
   // score ALL known event templates against the same feature set, unconditionally
@@ -282,28 +298,23 @@ blocks, just not gated by a caller-supplied id).
 `primary.type` to `groundTruth.type` — report precision/recall per event type, not "it feels
 right." This is the number that answers the eval's core question.
 
-### 5.4 Confidence breakdown (Wow gap #5 — score must be explainable, not just displayed)
+### 5.4 Confidence breakdown (Wow gap #5 — shipped)
 
-`detectLifeEvents()`'s evidence items today (see the existing `e(label, value, source,
-confidence)` helper) carry a per-item *evidence confidence*, but not the *score contribution* that
-item added to the final number. Extend the evidence shape:
+Each evidence item carries both *how sure we are it is real* (`confidence`) and *how many points it
+added* (`scoreWeight`). The RM evidence dialog renders the bar breakdown.
 
 ```ts
 EvidenceItem {
   label, value, source: string
-  confidence: number        // existing — how sure we are this evidence is real
-  scoreWeight: number       // new — how many points this item added to the total
+  confidence: number
+  scoreWeight: number       // contribution toward event.confidence (capped)
 }
 ```
-`sum(evidence.scoreWeight) === event.confidence` (capped). The evidence dialog (existing, RM side)
-renders this as a bar breakdown: "Recurring childcare +48% · Baby-category acceleration +28% ·
-Profile update +15% = 91%." No new data needed — this is a shape change on data the detector
-already computes internally as local variables (`score += .48` etc.) but currently discards.
 
-### 5.5 Ad-hoc / live detection (Wow gap #3 — prove it's not hardcoded, live)
+### 5.5 Ad-hoc / live detection (Wow gap #3 — shipped)
 
-New entry point that skips Customer 360 entirely and proves the detection layer is decoupled from
-demo-authored personas:
+Skips Customer 360. Proves detection is decoupled from demo-authored personas. UI: paste or
+upload CSV/JSON on `/today`.
 
 ```
 POST /api/detect/adhoc
@@ -315,46 +326,22 @@ just classification → features → detection → evidence. This is intentional
 slice of the pipeline, which is what makes it safe to expose for a live judge-pasted CSV without
 touching any other domain.
 
-### 5.6 Before/after comparison mode (Wow gap #6 — demo narrative)
+### 5.6 Before/after comparison mode (Wow gap #6 — shipped)
 
-Keep the current `if(scenario.id===...)` implementation as `legacyDetectLifeEvent()` (renamed, not
-deleted) purely as a demo reference point once §5's generalized `detectLifeEvents()` ships. A demo
-toggle runs both against the same holdout customer and shows: legacy returns nothing/wrong for a
-non-hero id, generalized returns ranked evidence. This turns the architecture diff itself into the
-pitch's strongest 30 seconds.
+`legacyDetectLifeEvent()` is kept only as a demo reference. `/today` runs both against the same
+holdout customer: legacy returns nothing/wrong for a non-hero id, generalized returns ranked
+evidence.
 
 No `DETECTOR=` env flag. Live path is always the generalized scorer. Rollback is `git reset --hard
 checkpoint-ws1`. `legacyDetectLifeEvent()` exists only for this before/after toggle.
 
 ## 6. LLM integration architecture
 
-### 6.1 Provider adapter (planned — `agents/llmProvider.js`)
+### 6.1 Provider adapter (`agents/llmProvider.js`)
 
-Today `OPENAI_API_KEY`/`OPENAI_MODEL` are hardcoded independently in `agents/intelligence.js` and
-`agents/future_you.js`. Replace with one adapter:
-
-```js
-// agents/llmProvider.js
-export function getLlmClient() {
-  const provider = process.env.LLM_PROVIDER || "openai";
-  const apiKey = process.env.LLM_API_KEY;
-  if (!apiKey) return null;
-  switch (provider) {
-    case "gemini":    return buildGeminiClient(apiKey);
-    case "anthropic": return buildAnthropicClient(apiKey);
-    default:          return buildOpenAiClient(apiKey);
-  }
-}
-```
-| Env var | Purpose |
-|---|---|
-| `LLM_PROVIDER` | `openai` \| `gemini` \| `anthropic` |
-| `LLM_API_KEY` | vendor key |
-| `LLM_MODEL` | e.g. `gpt-4.1-mini`, `gemini-2.5-flash`, `claude-sonnet-4` |
-| `LLM_DETECT` | `on`/`off` — gate for the optional hypothesis step below |
-
-Both `intelligence.js` and `future_you.js` switch to `getLlmClient()` instead of instantiating
-`OpenAI` directly. Fallback path (no key / error → deterministic copy) is unchanged.
+`intelligence.js`, `future_you.js`, and goal-plan copy use `completeJson` / `completeText`.
+Keys: `LLM_API_KEY` or `OPENAI_API_KEY`. `LLM_PROVIDER` other than `openai` returns no client
+(demo fallback). `LLM_DETECT=on` gates the optional hypothesis step. Holdout eval never calls the LLM.
 
 ### 6.2 Contract — what the LLM is allowed to return, everywhere it's used
 
@@ -362,7 +349,7 @@ Both `intelligence.js` and `future_you.js` switch to `getLlmClient()` instead of
 |---|---|---|---|
 | Detection hypothesis (optional, §6.3) | classified txns (~40 lines) | `{ hypotheses: [{type, why, txnIds}], merchantHints }` | confidence number, product names, invented txns |
 | RM brief narrator (exists) | detected event + eligible products | `executiveSummary, conversationOpener, discoveryQuestions, productNarratives` | new products, prices, eligibility overrides |
-| Goal-plan copy (planned, Digital Twin) | goal + projection output | plain-language explanation, lever suggestions | the projection numbers themselves |
+| Goal-plan copy (`goalPlan.js` `narrate`) | goal + projection output | plain-language explanation, lever suggestions | the projection numbers themselves |
 | Future You chat (exists) | projection facts | grounded conversational answer | balances/products not in the projection |
 
 Rule: **numbers come from deterministic code; prose comes from the LLM and must cite the numbers
@@ -396,38 +383,44 @@ customers, 8 event types" is the single most credible answer to "prove this isn'
 ### Existing
 | Route | Purpose |
 |---|---|
-| `GET /api/health` | health + `aiConnected` flag |
+| `GET /api/health` | health + `aiConnected`, `detectLlmOn`, `provider`, `model` (Developer system-status panel) |
 | `GET /api/scenarios`, `/api/scenarios/:id` | hero scenario list / branching projection |
-| `POST /api/project` | custom action list vs ignored branch |
+| `POST /api/project` | custom action list vs ignored branch (hero scenario or any customer cashflow) |
 | `GET /api/intelligence/:id` | full RM intelligence pipeline (detect → eligibility → LLM/fallback) |
-| `POST /api/future-you` | Future You Q&A on a projection branch |
+| `POST /api/future-you` | Future You Q&A on a hero projection or holdout goal-plan branch |
 | `GET /api/holdout` | labelled holdout summary (Workstream 1) |
 | `GET /api/ledgers/:id` | full statement, hero or holdout id (Workstream 1) |
+| `GET /api/eval/holdout-detection` | precision/recall vs `data/holdout.js` (Wow gap #2) |
+| `GET /api/detect/:id` | generalized detector for a hero or holdout ledger |
+| `POST /api/detect/adhoc` | pasted JSON/CSV → detection, no persona, never persisted (Wow #3) |
+| `GET /api/detect/legacy-vs-generalized/:id` | branch-logic vs generalized on the same ledger (Wow #6) |
+| `POST /api/customers/:id/intent` | plain-language “I am going to be…” → structured goal + plan (LLM + keyword fallback) |
+| `POST /api/customers/:id/goal-plan` | any hero/holdout + goal/levers → trajectory + achievements (Wow #4) |
+| `GET /api/today-triage` | ranked book: confidence × eligible value (heroes + holdout `h-hp-01`) |
+| `GET /api/customers/:id/360`, `/api/customers/:id/profile` | identity + holdings + credit + derived |
+| `GET /api/products` | product catalog (§4), `{ scraped: false }` |
+| `POST /api/plans`, `GET /api/plans` | consented share → in-memory queue (stores `userIntent` when the twin was shaped by chat) |
+| `GET /api/demo/metrics`, `POST /api/demo/event` | detections / briefs / shares / meetings |
+| `GET /api/demo/log` | rolling 40-entry timestamped session activity feed (Developer tab) |
+| `POST /api/customers/:id/lever-suggest` | model proposes 2–3 goal-plan lever combinations; server clamps every value regardless of model output, deterministic engine scores each candidate; falls back to 3 deterministic candidates with no LLM key |
+| `GET /api/customers/:id/detect` | alias of `GET /api/detect/:id` |
+| `POST /api/demo/reset` | clears Future You memory + shared plans; client resets avatar coins (§12.1) |
 
-### Planned
-| Route | Purpose |
-|---|---|
-| `GET /api/customers/:id/profile` | full Customer 360 (identity + holdings + credit + derived) |
-| `GET /api/customers/:id/detect` | generalized detector (§5) output for any customer, not just heroes |
-| `GET /api/products` | product catalog (§4) |
-| `POST /api/customers/:id/goal-plan` | goal input → deterministic trajectory + levers (Wow gap #4) |
-| `GET /api/eval/holdout-detection` | precision/recall report vs `data/holdout.js` ground truth (Wow gap #2) |
-| `POST /api/detect/adhoc` | live/pasted transactions → detection, no persona needed (Wow gap #3, §5.5) |
-| `GET /api/detect/legacy-vs-generalized/:id` | side-by-side old vs new detector output for demo (Wow gap #6, §5.6) |
-| `POST /api/demo/reset` | clears in-memory state (`sharedPlans`, Future You session memory, avatar coins) between rehearsal/live runs (§12.1) |
+No remaining planned routes. Gemini/Anthropic clients are not in this demo — adapter returns null.
 
 ## 8. Compliance boundaries (enforced in code, not just docs)
 
-- `agents/projection.js` and the planned goal-plan engine: pure arithmetic, no LLM call anywhere in
+- `agents/projection.js` and `agents/goalPlan.js`: pure arithmetic, no LLM call anywhere in
   the call path.
 - `rankEligibleProducts()`: runs and filters **before** any LLM call — the LLM only ever sees
   already-eligible products, never decides eligibility.
 - Health/wearable/(future) location modules: separate files, separate API responses, never
   imported by `agents/intelligence.js` or `agents/projection.js`. This is a lint-able boundary —
-  consider an import-restriction rule once these modules exist. (The old Next.js isolation lived
+  consider an import-restriction rule. `agents/completion.test.js` already forbids those strings
+  in `intelligence.js` / `projection.js`. (The old Next.js isolation lived
   in `src/lib/domain/biometrics.ts`; that file was retired with `src/`.)
-- Achievement/mission triggers (planned generalization): read from the same deterministic
-  projection/derived-profile output the UI displays, not from independent game state.
+- Achievement/mission triggers: `evaluateAchievements()` reads the goal-plan snapshot
+  (`emergencyFundMonths`, `minBalance`, `onTrack`), not independent game HUD numbers.
 
 ## 9. Testing strategy
 
@@ -439,27 +432,35 @@ customers, 8 event types" is the single most credible answer to "prove this isn'
   not just "the 3 heroes still pass."
 - Regression guard: hero confidence scores must stay >0.7 after any detector change
   (`agents/intelligence.test.js` already encodes this).
+- The two engine guarantees the compliance story rests on are directly tested, not just implied:
+  `agents/projection.test.js` (the deterministic cashflow math) and `agents/narrationGuard.test.js`
+  (the LLM-never-invents-a-number check). `agents/leverSuggest.test.js` follows the same
+  never-trust-raw-model-output pattern as `agents/llmHypothesis.test.js`.
+- Every agent module now has coverage: `achievements.test.js`, `cashflow.test.js`,
+  `derivedProfile.test.js`, `features.test.js`, `future_you.test.js`, `llmProvider.test.js`, and
+  `sharedPlans.test.js` closed the last gaps (116 tests total). `llmProvider.test.js` stubs
+  `process.env` per-test so provider/key gating is verified without a real network call.
 
 ## 10. Open technical decisions
 
-1. LLM provider for the hypothesis step (§6.3) — OpenAI (already wired) vs Gemini vs Anthropic.
-   Adapter design (§6.1) makes this a config change, not an architecture change, once built.
-2. Spend benchmark source (§3.6) — published guidance vs. book-derived percentile. Blocks
-   `spendMix.recommendedPct` from shipping honestly.
-3. Persistence for shared plans — currently in-memory (Future You session Map in
-   `agents/future_you.js`, avatar/game state in `public/app.js`). Fine for demo, not for a real
-   pilot. `POST /api/demo/reset` (§12.1) is the demo-day workaround.
+None left. Closed calls:
+
+1. **Closed:** `llmProvider.js` owns OpenAI narration. `LLM_DETECT=on` is the optional hypothesis
+   gate. Gemini/Anthropic not implemented — adapter returns null.
+2. **Closed:** spend benchmark is DOS Household Expenditure Survey broad-group weights, labelled in
+   `derivedProfile.js` (`SPEND_BENCHMARK.source`).
+3. **Closed:** shared plans persist in-process (`agents/sharedPlans.js`) and die on restart.
+   `POST /api/demo/reset` is the demo-day workaround.
 4. **Closed:** Next.js port retired (deleted `src/`, `e2e/`, Playwright). Do not re-add.
-5. How much input validation `POST /api/detect/adhoc` (§5.5) needs for a live judge-facing demo —
-   see §12.4 for the concrete guards (row cap, size cap, regex-safety, no auth needed but no
-   persistence either).
+5. **Closed:** `POST /api/detect/adhoc` guards shipped with Wow #3 — 500-row cap, 120kb body cap,
+   YYYY-MM-DD rejection before classifier regex, no persistence, empty-state copy (§12.4).
 6. **Closed:** no `DETECTOR=legacy|generalized` env flag. Rollback is git (`checkpoint-ws1` tag
    below), plus keeping `legacyDetectLifeEvent()` in-process for Wow gap #6's before/after demo.
    An env flag would add a second code path to keep in sync for a one-week hackathon.
 
 ## 11. Build order for the 6 hackathon "wow" gaps
 
-Sequenced so each step is demoable on its own — do not treat this as an all-or-nothing rewrite.
+**All six shipped.** Sequence below is historical (why they were ordered that way), not a backlog.
 
 1. §5 generalized `detectLifeEvents()` — replaces branch logic, still returns today's evidence
    shape. Regression: heroes stay >0.7 confidence (existing test).
@@ -500,49 +501,42 @@ concrete technical fix.
 
 ### 12.1 In-memory state reset
 
-`sharedPlans` (when it exists on the Express side), `future_you.js`'s
+`sharedPlans` (`agents/sharedPlans.js`), `future_you.js`'s
 `sessionMemory` Map, and the Express game's avatar-coin/mission state are all process-lifetime
-in-memory stores with no reset path. Run the demo once in rehearsal and once live without
-restarting the process, and a judge can see a leftover Future You conversation or a coin
-balance that doesn't match the story being told.
+in-memory stores. Run the demo once in rehearsal and once live without restarting the process, and a
+judge can see a leftover Future You conversation or a coin balance that doesn't match the story.
 
-**Fix:** add `POST /api/demo/reset` (§7) that clears all three stores. Call it (or restart the
-process) immediately before every live run, not just once at the start of the day.
+**Fix:** `POST /api/demo/reset` clears Future You `sessionMemory` and the in-memory `sharedPlans`
+queue (`cleared.sharedPlans: true`), and returns a default `avatarProfile` for the SPA to apply.
+Call it (or restart the process) immediately before every live run.
 
 ### 12.2 Fresh-clone sanity check
 
-Nothing currently verifies `git clone` → `npm install` → `npm run dev` works with zero manual
-steps on a machine that isn't yours. Known current friction: port 3000 may already be occupied
-(happened in this session — required `PORT=3011`), and `.env` is gitignored so a fresh clone has
-no `OPENAI_API_KEY` unless `.env.example` is copied.
+Code path is documented: `README.md` Run section + `.env.example` + `PORT=<n>` override. This is a
+**demo-laptop** check, not missing product work. Do **not** run `rm -rf node_modules` on a machine
+already hosting live rehearsal servers.
 
-**Fix, run once before demo day and once again the morning of:**
+**On the actual demo laptop, morning of:**
 ```bash
-rm -rf node_modules && npm install && npm run dev
+npm install && npm run dev
 ```
-on a clean checkout, ideally on whatever machine will actually run the demo. If port conflicts are
-a recurring risk on the demo machine, document the `PORT=<n>` override in `README.md`'s Run section
-(not just this doc).
+If port 3000 is taken: `PORT=<n> npm run dev`. Copy `.env.example` → `.env` if a live key is needed;
+without a key, verified fallback is the rehearsed path (§12.3).
 
 ### 12.3 Offline / no-key resilience — verify, don't assume
 
-The deterministic-fallback code path exists (`agents/intelligence.js`, `agents/future_you.js`) but
-is not currently exercised as a rehearsed demo path. Venue wifi failing mid-pitch, or an
-`OPENAI_API_KEY` hitting a rate limit live, is a real failure mode.
-
-**Fix:** rehearse the entire demo at least once with `OPENAI_API_KEY` unset. Confirm the
-"deterministic fallback" / "verified fallback" UI labels read fine out loud, not just correctly in
-code — if the honest fallback framing feels awkward in front of judges, fix the copy now, not live.
+Fallback is the default when `OPENAI_API_KEY` is unset: UI **VERIFIED FALLBACK**, Future You
+`source: cached-demo`, `GET /api/health` `aiConnected: false`. Rehearse once more on the demo laptop
+the morning of in case venue wifi dies.
 
 ### 12.4 Hardening `POST /api/detect/adhoc` (Wow gap #3, §5.5)
 
-This is the app's first unauthenticated, judge-reachable input surface. No auth is needed for a
-hackathon demo, but it still needs basic guards before it's live on stage:
+Shipped with the adhoc endpoint:
 
-- Row cap (e.g. reject >500 transactions) and request body size cap.
-- Date format validation before hitting `classifyMerchant`'s regex rules — reject malformed rows
-  rather than letting arbitrary attacker-controlled strings run through every keyword pattern.
-- No persistence: confirm this endpoint never writes to any store (it shouldn't need to — it's a
-  pure classify → derive → detect pipeline per §5.5).
-- Empty-state handling: if every row fails to classify or no event scores above threshold, return
-  a clear "no strong signal in this data" response rather than a confusing zero/blank result live.
+- Row cap 500 and `express.json({ limit: "120kb" })`.
+- Date format `YYYY-MM-DD` validated before `classifyMerchant` regex.
+- No persistence (`persisted: false`); classify → derive → detect only.
+- Empty-state: `empty: true` + `"No strong signal in this data"` when nothing clears 0.4.
+
+This architecture doc describes the **shipped** system. Intentional non-goals: live product scrape,
+12–24 month ledgers, location/device, RM specialty matching (`objective.md` §10 Out of scope).

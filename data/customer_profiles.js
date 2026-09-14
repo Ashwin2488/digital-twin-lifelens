@@ -1,5 +1,6 @@
 import { heroLedgers } from "./heroLedgers.js";
 
+/** `candidates` = recommendable products, not holdings. See data/policyHoldings.js for owned policies. */
 export const customerProfiles = {
   "new-parent": {
     persona: { fullName:"Amira Malik", initials:"AM", age:34, occupation:"Product Director", employer:"Nimbus Labs", maritalStatus:"Married", dependants:1, tenureMonths:76, riskProfile:"Balanced", contactConsent:true, phone:"+65 9123 8841", segment:"Priority", totalAssets:186400, monthlyIncome:6200, liabilities:38400, productsHeld:["Everyday Account","Rewards Card","Balanced Portfolio"], goals:["Build family safety net","Fund child's education","Retain liquidity"] },

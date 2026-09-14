@@ -269,8 +269,10 @@
   --line: var(--sc-grey-2);
   --paper: var(--sc-grey-0);
   --white: #fff;
-  --purple: var(--sc-brand-blue);
-  --purple-soft: var(--sc-blue-0);
+  /* NOTE: was named --purple/--purple-soft but always aliased brand blue — no purple ever
+     rendered. Renamed to be honest about what it is: the one accent color. */
+  --accent: var(--sc-brand-blue);
+  --accent-soft: var(--sc-blue-0);
   --teal: var(--sc-teal-9);
   --green: var(--sc-green-9);
   --green-soft: var(--sc-green-0);
