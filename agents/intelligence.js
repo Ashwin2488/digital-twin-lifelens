@@ -1,45 +1,197 @@
-import OpenAI from "openai";
+import { deriveFeatures } from "./features.js";
+import { detectLifeEvents } from "./detector.js";
+import { protectionGapFromHoldings } from "../data/policyHoldings.js";
+import { catalogByName } from "../data/productCatalog.js";
+import { buildCustomerCashflow } from "./cashflow.js";
+import { buildDerivedProfile } from "./derivedProfile.js";
+import { assertNarrationGrounded, collectAllowedAmounts } from "./narrationGuard.js";
+import { completeJson, getLlmMeta, isDetectLlmOn, isLlmEnabled } from "./llmProvider.js";
+import { mergeHypotheses, proposeHypotheses } from "./llmHypothesis.js";
 
-const client = process.env.OPENAI_API_KEY ? new OpenAI() : null;
-const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+export { deriveFeatures };
 
-export async function buildCustomerIntelligence(profile, scenario) {
+export async function buildCustomerIntelligence(profile, scenario, options = {}) {
+  const customerId = profile.id || scenario?.id;
   const features = deriveFeatures(profile);
-  const event = detectLifeEvent(profile, scenario, features);
-  const eligible = rankEligibleProducts(profile, features);
-  const fallback = deterministicInsights(profile, event, eligible, features);
-  if (!client) return { source:"deterministic-fallback", model:null, ...fallback };
+  if (customerId) {
+    features.protectionGap = protectionGapFromHoldings(customerId, profile.baseline?.estimatedProtectionNeed);
+  }
+  const detected = detectLifeEvents(features, profile);
+  const event = {
+    ...detected.primary,
+    alternatives: detected.alternatives,
+    scenarioId: scenario?.id || profile.id || null,
+  };
+  if (options.hypothesize !== false && isDetectLlmOn()) {
+    try {
+      const proposal = await proposeHypotheses(profile.transactions);
+      Object.assign(event, mergeHypotheses(detected, proposal));
+    } catch {
+      event.llmDropped = [{ reason: "hypothesis step failed; local scorer unchanged" }];
+    }
+  }
+  const eligible = rankEligibleProducts(profile, features, event.id);
+  const cashflow = buildCustomerCashflow({ ...profile, id: customerId });
+  const derived = buildDerivedProfile({ features, cashflow, event, persona: profile.persona || {} });
+  const fallback = deterministicInsights(profile, event, eligible, features, derived);
+  const grounded = assertNarrationGrounded(`${fallback.ai.executiveSummary} ${Object.values(fallback.ai.productNarratives).join(" ")}`, {
+    productNames: eligible.map((p) => p.name),
+    amounts: collectAllowedAmounts({ features, event, products: eligible }),
+  });
+  fallback.citations = event.evidence.map((row) => row.id).filter(Boolean);
+  fallback.grounded = grounded;
+  if (options.narrate === false || !isLlmEnabled()) {
+    return { source: "deterministic-fallback", model: null, ...fallback };
+  }
+  const { model, provider } = getLlmMeta();
   try {
-    const response = await client.responses.create({
-      model,
-      input: [{ role:"system", content:"You are a bank relationship intelligence analyst. Use only supplied facts. Never invent customer data, eligibility, prices, or outcomes. Produce concise needs-led insights, not sales pressure or financial advice." }, { role:"user", content: JSON.stringify({ task:"Explain the detected life event and provide one narrative for every supplied eligible product.", persona:profile.persona, derivedFeatures:features, detectedEvent:event, eligibleProducts:eligible }) }],
-      text:{ format:{ type:"json_schema", name:"relationship_intelligence", strict:true, schema:{ type:"object", additionalProperties:false, properties:{ executiveSummary:{type:"string"}, conversationOpener:{type:"string"}, discoveryQuestions:{type:"array",items:{type:"string"}}, productNarratives:{type:"array",items:{type:"object",additionalProperties:false,properties:{name:{type:"string"},narrative:{type:"string"}},required:["name","narrative"]}} }, required:["executiveSummary","conversationOpener","discoveryQuestions","productNarratives"] } } },
-      temperature:0.2,
-      max_output_tokens:700
+    const parsed = await completeJson({
+      system:
+        "You are a bank relationship intelligence analyst. Use only supplied facts. Never invent customer data, eligibility, prices, or outcomes. Produce concise needs-led insights, not sales pressure or financial advice. Cite evidence ids already in the detected event.",
+      user: JSON.stringify({
+        task: "Explain the detected life event and provide one narrative for every supplied eligible product.",
+        persona: profile.persona,
+        derivedFeatures: features,
+        detectedEvent: event,
+        eligibleProducts: eligible,
+      }),
+      name: "relationship_intelligence",
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          executiveSummary: { type: "string" },
+          conversationOpener: { type: "string" },
+          discoveryQuestions: { type: "array", items: { type: "string" } },
+          productNarratives: {
+            type: "array",
+            items: {
+              type: "object",
+              additionalProperties: false,
+              properties: { name: { type: "string" }, narrative: { type: "string" } },
+              required: ["name", "narrative"],
+            },
+          },
+        },
+        required: ["executiveSummary", "conversationOpener", "discoveryQuestions", "productNarratives"],
+      },
+      temperature: 0.2,
+      maxTokens: 700,
     });
-    const parsed = JSON.parse(response.output_text);
-    const ai = { ...parsed, productNarratives:Object.fromEntries(parsed.productNarratives.map(item=>[item.name,item.narrative])) };
-    return { source:"openai", model, ...fallback, ai };
+    if (!parsed) return { source: "deterministic-fallback", model, ...fallback };
+    const allowed = new Set(eligible.map((p) => p.name));
+    const narratives = Object.fromEntries(
+      (parsed.productNarratives || []).filter((item) => allowed.has(item.name)).map((item) => [item.name, item.narrative])
+    );
+    if (eligible.length && Object.keys(narratives).length !== eligible.length) {
+      return { source: "deterministic-fallback", model, warning: "LLM named a product that was not eligible.", ...fallback };
+    }
+    const ai = { ...parsed, productNarratives: narratives };
+    const liveGrounded = assertNarrationGrounded(`${ai.executiveSummary} ${Object.values(ai.productNarratives).join(" ")}`, {
+      productNames: eligible.map((p) => p.name),
+      amounts: collectAllowedAmounts({ features, event, products: eligible }),
+    });
+    if (!liveGrounded.ok) {
+      return { source: "deterministic-fallback", model, warning: "LLM introduced amounts or products not in the deterministic input.", ...fallback, grounded: liveGrounded };
+    }
+    return { source: provider, model, ...fallback, ai, grounded: liveGrounded };
   } catch (error) {
-    return { source:"deterministic-fallback", model, warning:error instanceof Error?error.message:"AI request failed", ...fallback };
+    return { source: "deterministic-fallback", model, warning: error instanceof Error ? error.message : "AI request failed", ...fallback };
   }
 }
 
-export function deriveFeatures(profile){
-  const txs=profile.transactions; const by=c=>txs.filter(t=>t.category===c); const sum=c=>Math.abs(by(c).reduce((n,t)=>n+t.amount,0));
-  const income=by("income").map(t=>t.amount).filter(v=>v>0); const payroll=by("income").filter(t=>/PAYROLL|SALARY/.test(t.description)&&t.amount>0).map(t=>t.amount); const recentIncome=income.at(-1)||0;
-  const dates=txs.map(t=>t.date).sort();
-  return { transactionWindowDays:daysBetween(dates[0],dates.at(-1)), childcareRecurringMonths:new Set(by("childcare").map(t=>t.date.slice(0,7))).size, babySpendTotal:sum("baby"), babySpendGrowth:438-84, missingPayrollCycles:txs.filter(t=>t.description==="NO PAYROLL RECEIVED").length, priorPayrollAverage:payroll.length?Math.round(payroll.reduce((a,b)=>a+b,0)/payroll.length):0, recentObservedIncome:recentIncome, weddingSpend90d:sum("wedding"), partnerContributionMonths:new Set(by("partnerTransfer").map(t=>t.date.slice(0,7))).size, partnerContributions:by("partnerTransfer").reduce((n,t)=>n+t.amount,0), monthlySurplus:profile.persona.monthlyIncome-profile.baseline.avgMonthlySpend, protectionGap:Math.max(0,profile.baseline.estimatedProtectionNeed-profile.baseline.protectionCover), emergencyFundMonths:profile.baseline.emergencyFundMonths, transactionCount:txs.length };
+const CATALOG_BY_EVENT = {
+  "new-parent": ["Family Protection Plan", "SmartSaver Plus", "Education Builder"],
+  "job-loss": ["Career Transition Cover", "FlexiCash Reserve", "Payment Relief Programme"],
+  wedding: ["Couples Wealth Plan", "Celebration Instalments", "Premier Joint Account"],
+  "home-purchase": ["MortgageOne", "Wealth Saver", "Personal Accident Insurance"],
+  retirement: ["Wealth Saver", "Personal Accident Insurance"],
+  "business-owner": ["FlexiCash Reserve", "Wealth Saver"],
+  medical: ["Family Protection Plan", "Personal Accident Insurance"],
+  relocation: ["Wealth Saver", "Premier Joint Account"],
+};
+
+const CATALOG_IMPACT = {
+  "Family Protection Plan": { type: "PROTECTION", annualValue: 2400, baseFit: 90, monthlyImpact: 480, impact: "Protects household income" },
+  "SmartSaver Plus": { type: "SAVINGS", annualValue: 1800, baseFit: 84, monthlyImpact: 350, impact: "Builds a liquid buffer" },
+  "Education Builder": { type: "INVESTMENT", annualValue: 1200, baseFit: 80, monthlyImpact: 250, impact: "Long-horizon education funding" },
+  "Career Transition Cover": { type: "PROTECTION", annualValue: 980, baseFit: 86, monthlyImpact: 310, impact: "Keeps essential cover in place" },
+  "FlexiCash Reserve": { type: "LIQUIDITY", annualValue: 1500, baseFit: 82, monthlyImpact: 420, impact: "Short-term liquidity bridge" },
+  "Payment Relief Programme": { type: "SUPPORT", annualValue: 1600, baseFit: 92, monthlyImpact: 1200, impact: "Temporary instalment relief" },
+  "Couples Wealth Plan": { type: "INVESTMENT", annualValue: 1100, baseFit: 80, monthlyImpact: 600, impact: "Shared wealth journey" },
+  "Celebration Instalments": { type: "CREDIT", annualValue: 900, baseFit: 84, monthlyImpact: 700, impact: "Smooths a known expense cluster" },
+  "Premier Joint Account": { type: "BANKING", annualValue: 700, baseFit: 88, monthlyImpact: 900, impact: "One view of shared finances" },
+  MortgageOne: { type: "MORTGAGE", annualValue: 2100, baseFit: 88, monthlyImpact: 220, impact: "Home-loan servicing conversation" },
+  "Wealth Saver": { type: "SAVINGS", annualValue: 800, baseFit: 76, monthlyImpact: 180, impact: "Deposit buffer conversation" },
+  "Personal Accident Insurance": { type: "PROTECTION", annualValue: 420, baseFit: 74, monthlyImpact: 90, impact: "Accident cover overlay" },
+};
+
+function candidatesFor(profile, eventId) {
+  if (profile.candidates?.length) return profile.candidates;
+  return (CATALOG_BY_EVENT[eventId] || ["Wealth Saver"]).map((name) => {
+    const meta = CATALOG_IMPACT[name] || { type: "SAVINGS", annualValue: 600, baseFit: 70, monthlyImpact: 120, impact: "Catalog conversation starter" };
+    return { name, ...meta, reason: `Public catalog match for ${eventId}`, checks: [] };
+  });
 }
 
-function detectLifeEvent(profile,scenario,f){
-  const evidence=[]; let score=0;
-  if(scenario.id==="new-parent"){if(f.childcareRecurringMonths>=2){score+=.48;evidence.push(e("Recurring childcare",`${f.childcareRecurringMonths} monthly occurrences`,"transaction_pattern",.96))}if(f.babySpendGrowth>250){score+=.28;evidence.push(e("Baby-category acceleration",`S$${f.babySpendGrowth} increase from first to latest observed month`,"category_trend",.89))}if(profile.persona.dependants===1){score+=.15;evidence.push(e("Customer profile change","Dependants updated from 0 to 1","customer_record",1))}}
-  if(scenario.id==="job-loss"){if(f.missingPayrollCycles>=2){score+=.58;evidence.push(e("Payroll interruption",`${f.missingPayrollCycles} expected salary cycles missing`,"income_pattern",.98))}if(f.priorPayrollAverage>0){score+=.2;evidence.push(e("Historical salary baseline",`Prior average S$${f.priorPayrollAverage.toLocaleString("en-SG")}/month`,"transaction_baseline",.99))}if(f.recentObservedIncome>0&&f.recentObservedIncome<f.priorPayrollAverage*.5){score+=.09;evidence.push(e("Replacement income gap",`Latest income is ${Math.round((1-f.recentObservedIncome/f.priorPayrollAverage)*100)}% below baseline`,"cashflow_change",.87))}}
-  if(scenario.id==="wedding"){if(f.weddingSpend90d>5000){score+=.5;evidence.push(e("Wedding merchant cluster",`S$${f.weddingSpend90d.toLocaleString("en-SG")} across verified wedding merchants`,"merchant_cluster",.95))}if(f.partnerContributionMonths>=2){score+=.27;evidence.push(e("Recurring partner contribution",`S$${f.partnerContributions.toLocaleString("en-SG")} across ${f.partnerContributionMonths} months`,"transfer_pattern",.9))}if(profile.persona.maritalStatus==="Engaged"){score+=.12;evidence.push(e("Customer profile","Marital status recorded as engaged","customer_record",1))}}
-  return { type:scenario.event.type,label:scenario.event.label,confidence:Math.min(.98,score),evidence,alternativeHypothesis:scenario.id==="new-parent"?"Could represent childcare support for another family member":scenario.id==="job-loss"?"Could represent a payroll account switch":"Could represent event planning on behalf of someone else" };
+function rankEligibleProducts(profile, f, eventId) {
+  const candidates = candidatesFor(profile, eventId);
+  if (!candidates.length) return [];
+  const income = profile.persona?.monthlyIncome || profile.baseline?.avgMonthlyIncome || f.priorPayrollAverage || 0;
+  const age = profile.persona?.age || 0;
+  return candidates
+    .map((p) => {
+      const catalog = catalogByName(p.name);
+      const checks = {
+        contactConsent: profile.persona?.contactConsent,
+        positiveSurplus: f.monthlySurplus > 0,
+        mortgageHolder: (profile.persona?.productsHeld || []).includes("Home Loan"),
+        balancedRisk: ["Balanced", "Growth"].includes(profile.persona?.riskProfile),
+        growthRisk: profile.persona?.riskProfile === "Growth",
+        minAge: catalog?.publicEligibility?.minAge == null || age >= catalog.publicEligibility.minAge,
+        minIncome: catalog?.publicEligibility?.minIncome == null || income >= catalog.publicEligibility.minIncome,
+        riskProfile:
+          !catalog?.publicEligibility?.riskProfile ||
+          catalog.publicEligibility.riskProfile.includes(profile.persona?.riskProfile),
+      };
+      const required = [...(p.checks || [])];
+      if (catalog?.publicEligibility?.minAge) required.push("minAge");
+      if (catalog?.publicEligibility?.minIncome != null) required.push("minIncome");
+      if (catalog?.publicEligibility?.riskProfile) required.push("riskProfile");
+      const results = required.map((name) => ({ name, passed: Boolean(checks[name]) }));
+      const eligible = results.every((r) => r.passed);
+      return {
+        ...p,
+        productCode: catalog?.code || null,
+        complianceFlags: catalog?.complianceFlags,
+        fit: eligible ? p.baseFit : 0,
+        eligible,
+        guardrails: results,
+      };
+    })
+    .filter((p) => p.eligible)
+    .sort((a, b) => b.fit - a.fit);
 }
-function rankEligibleProducts(profile,f){return profile.candidates.map(p=>{const checks={contactConsent:profile.persona.contactConsent,positiveSurplus:f.monthlySurplus>0,mortgageHolder:profile.persona.productsHeld.includes("Home Loan"),balancedRisk:["Balanced","Growth"].includes(profile.persona.riskProfile),growthRisk:profile.persona.riskProfile==="Growth"};const results=p.checks.map(name=>({name,passed:Boolean(checks[name])}));const eligible=results.every(r=>r.passed);return {...p,fit:eligible?p.baseFit:0,eligible,guardrails:results}}).filter(p=>p.eligible).sort((a,b)=>b.fit-a.fit)}
-function deterministicInsights(profile,event,products,features){return { persona:profile.persona,baseline:profile.baseline,transactions:profile.transactions,features,event,products,ai:{executiveSummary:`${event.label} detected at ${Math.round(event.confidence*100)}% confidence from ${event.evidence.length} independent signals. Review changing needs before discussing products.`,conversationOpener:`I noticed a few changes in your recent financial patterns and wanted to understand whether your priorities have changed.`,discoveryQuestions:["What has changed most in your financial priorities?","How much monthly flexibility would feel comfortable?","Which goal matters most over the next 12 months?"],productNarratives:Object.fromEntries(products.map(p=>[p.name,p.reason]))}}}
-function e(label,value,source,confidence){return{label,value,source,confidence}}
-function daysBetween(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000))}
+
+function deterministicInsights(profile, event, products, features, derived) {
+  const citation = event.evidence.map((row) => row.id).filter(Boolean).join(", ");
+  return {
+    persona: profile.persona || { fullName: profile.id, initials: "??" },
+    baseline: profile.baseline,
+    transactions: profile.transactions,
+    features,
+    derived,
+    event,
+    products,
+    ai: {
+      executiveSummary: `${event.label} detected at ${Math.round(event.confidence * 100)}% confidence from ${event.evidence.length} independent signals${citation ? ` [${citation}]` : ""}. Review changing needs before discussing products.`,
+      conversationOpener: `I noticed a few changes in your recent financial patterns and wanted to understand whether your priorities have changed.`,
+      discoveryQuestions: [
+        "What has changed most in your financial priorities?",
+        "How much monthly flexibility would feel comfortable?",
+        "Which goal matters most over the next 12 months?",
+      ],
+      productNarratives: Object.fromEntries(products.map((p) => [p.name, p.reason])),
+    },
+  };
+}

@@ -1,0 +1,596 @@
+{
+  "new-parent": {
+    "id": "new-parent",
+    "fullName": "Amira Malik",
+    "dob": "1992-03-14",
+    "idMasked": "SG-DEMO-AM34",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 9123 8841",
+      "email": "amira.malik@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2019-05-12",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "job-loss": {
+    "id": "job-loss",
+    "fullName": "Daniel Tan",
+    "dob": "1984-07-02",
+    "idMasked": "SG-DEMO-DT42",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 9782 3306",
+      "email": "daniel.tan@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2016-08-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "wedding": {
+    "id": "wedding",
+    "fullName": "Priya Shah",
+    "dob": "1995-11-21",
+    "idMasked": "SG-DEMO-PS31",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 9014 5572",
+      "email": "priya.shah@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2021-01-18",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-np-01": {
+    "id": "h-np-01",
+    "fullName": "Mei Ling Ong",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-ML1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-np-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-np-02": {
+    "id": "h-np-02",
+    "fullName": "Arun Krishnan",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-AK2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-np-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-np-03": {
+    "id": "h-np-03",
+    "fullName": "Hui Wen Tan",
+    "dob": "1975-04-13",
+    "idMasked": "SG-DEMO-HW3",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8002 3757",
+      "email": "h-np-03@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-jl-01": {
+    "id": "h-jl-01",
+    "fullName": "Marcus Goh",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-MG1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-jl-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-jl-02": {
+    "id": "h-jl-02",
+    "fullName": "Nadia Rahman",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-NR2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-jl-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-jl-03": {
+    "id": "h-jl-03",
+    "fullName": "Kenji Lim",
+    "dob": "1975-04-13",
+    "idMasked": "SG-DEMO-KL3",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8002 3757",
+      "email": "h-jl-03@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-wd-01": {
+    "id": "h-wd-01",
+    "fullName": "Farah Ibrahim",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-FI1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-wd-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-wd-02": {
+    "id": "h-wd-02",
+    "fullName": "Lucas Chen",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-LC2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-wd-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-wd-03": {
+    "id": "h-wd-03",
+    "fullName": "Aisha Wong",
+    "dob": "1975-04-13",
+    "idMasked": "SG-DEMO-AW3",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8002 3757",
+      "email": "h-wd-03@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-hp-01": {
+    "id": "h-hp-01",
+    "fullName": "Wei Lin Chen",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-WL1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-hp-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-hp-02": {
+    "id": "h-hp-02",
+    "fullName": "Benjamin Ho",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-BH2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-hp-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-rt-01": {
+    "id": "h-rt-01",
+    "fullName": "Ethan Teo",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-ET1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-rt-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-rt-02": {
+    "id": "h-rt-02",
+    "fullName": "Sofia Pereira",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-SP2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-rt-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-bo-01": {
+    "id": "h-bo-01",
+    "fullName": "Jonah Cruz",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-JC1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-bo-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-bo-02": {
+    "id": "h-bo-02",
+    "fullName": "Lina Dass",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-LD2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-bo-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-md-01": {
+    "id": "h-md-01",
+    "fullName": "Adrian Koh",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-AK1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-md-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-md-02": {
+    "id": "h-md-02",
+    "fullName": "Yasmin Ali",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-YA2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-md-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-rl-01": {
+    "id": "h-rl-01",
+    "fullName": "Cheng Liu",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-CL1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-rl-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-rl-02": {
+    "id": "h-rl-02",
+    "fullName": "Hannah Fernandez",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-HF2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-rl-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-none-01": {
+    "id": "h-none-01",
+    "fullName": "Omar Sim",
+    "dob": "1973-02-11",
+    "idMasked": "SG-DEMO-OS1",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8000 7919",
+      "email": "h-none-01@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-none-02": {
+    "id": "h-none-02",
+    "fullName": "Jia Hui Lau",
+    "dob": "1974-03-12",
+    "idMasked": "SG-DEMO-JH2",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8001 5838",
+      "email": "h-none-02@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-none-03": {
+    "id": "h-none-03",
+    "fullName": "Ryan Patel",
+    "dob": "1975-04-13",
+    "idMasked": "SG-DEMO-RP3",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8002 3757",
+      "email": "h-none-03@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-none-04": {
+    "id": "h-none-04",
+    "fullName": "Ananya Singh",
+    "dob": "1976-05-14",
+    "idMasked": "SG-DEMO-AS4",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8003 1676",
+      "email": "h-none-04@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  },
+  "h-none-05": {
+    "id": "h-none-05",
+    "fullName": "Zachary Yeo",
+    "dob": "1977-06-15",
+    "idMasked": "SG-DEMO-ZY5",
+    "nationality": "Singaporean",
+    "contact": {
+      "phone": "+65 8003 9595",
+      "email": "h-none-05@example.com",
+      "address": "Singapore",
+      "residencyStatus": "Citizen"
+    },
+    "kyc": {
+      "onboardedDate": "2020-06-01",
+      "segment": "Priority"
+    },
+    "consent": {
+      "marketing": false,
+      "dataSharing": true,
+      "biometric": false
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "new-parent": [
+    {
+      "id": "new-parent-PA-BASIC",
+      "customerId": "new-parent",
+      "productCode": "PA-BASIC",
+      "category": "insurance",
+      "status": "active",
+      "startDate": "2021-04-01",
+      "premiumOrContribution": 85,
+      "sumAssuredOrAUM": 180000
+    },
+    {
+      "id": "new-parent-EVERYDAY",
+      "customerId": "new-parent",
+      "productCode": "EVERYDAY",
+      "category": "deposit",
+      "status": "active",
+      "startDate": "2019-05-01",
+      "sumAssuredOrAUM": 14200
+    }
+  ],
+  "job-loss": [
+    {
+      "id": "job-loss-TERM-FAMILY",
+      "customerId": "job-loss",
+      "productCode": "TERM-FAMILY",
+      "category": "insurance",
+      "status": "active",
+      "startDate": "2018-11-01",
+      "premiumOrContribution": 210,
+      "sumAssuredOrAUM": 450000
+    },
+    {
+      "id": "job-loss-MORTGAGEONE",
+      "customerId": "job-loss",
+      "productCode": "MORTGAGEONE",
+      "category": "loan",
+      "status": "active",
+      "startDate": "2017-06-01",
+      "sumAssuredOrAUM": 0,
+      "outstandingBalance": 221000,
+      "tenorMonths": 216
+    },
+    {
+      "id": "job-loss-TD-12M",
+      "customerId": "job-loss",
+      "productCode": "TD-12M",
+      "category": "deposit",
+      "status": "active",
+      "startDate": "2024-01-15",
+      "sumAssuredOrAUM": 40000
+    }
+  ],
+  "wedding": [
+    {
+      "id": "wedding-PA-TRAVEL",
+      "customerId": "wedding",
+      "productCode": "PA-TRAVEL",
+      "category": "insurance",
+      "status": "active",
+      "startDate": "2023-02-01",
+      "premiumOrContribution": 42,
+      "sumAssuredOrAUM": 250000
+    },
+    {
+      "id": "wedding-GROWTH-UT",
+      "customerId": "wedding",
+      "productCode": "GROWTH-UT",
+      "category": "investment",
+      "status": "active",
+      "startDate": "2022-08-01",
+      "sumAssuredOrAUM": 38000
+    }
+  ],
+  "h-hp-01": [
+    {
+      "id": "h-hp-01-PA-BASIC",
+      "customerId": "h-hp-01",
+      "productCode": "PA-BASIC",
+      "category": "insurance",
+      "status": "active",
+      "startDate": "2020-03-01",
+      "premiumOrContribution": 55,
+      "sumAssuredOrAUM": 120000
+    },
+    {
+      "id": "h-hp-01-MORTGAGEONE",
+      "customerId": "h-hp-01",
+      "productCode": "MORTGAGEONE",
+      "category": "loan",
+      "status": "active",
+      "startDate": "2024-01-01",
+      "sumAssuredOrAUM": 0,
+      "outstandingBalance": 480000,
+      "tenorMonths": 300
+    }
+  ],
+  "h-jl-01": [
+    {
+      "id": "h-jl-01-TERM-FAMILY",
+      "customerId": "h-jl-01",
+      "productCode": "TERM-FAMILY",
+      "category": "insurance",
+      "status": "active",
+      "startDate": "2019-09-01",
+      "premiumOrContribution": 95,
+      "sumAssuredOrAUM": 200000
+    }
+  ],
+  "h-none-01": [
+    {
+      "id": "h-none-01-PA-BASIC",
+      "customerId": "h-none-01",
+      "productCode": "PA-BASIC",
+      "category": "insurance",
+      "status": "active",
+      "startDate": "2022-01-01",
+      "premiumOrContribution": 28,
+      "sumAssuredOrAUM": 80000
+    }
+  ]
+}

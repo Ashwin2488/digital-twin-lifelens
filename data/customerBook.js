@@ -40,6 +40,7 @@ const LIFE_EVENT_CUSTOMERS = [
     phone: "+65 9123 8841",
     status: { key: "life-event", label: "Life event" },
     eventLabel: "New baby and daycare",
+    notes: "",
   },
   {
     id: "job-loss",
@@ -54,6 +55,7 @@ const LIFE_EVENT_CUSTOMERS = [
     phone: "+65 9782 3306",
     status: { key: "life-event", label: "Life event" },
     eventLabel: "Income transition",
+    notes: "",
   },
   {
     id: "wedding",
@@ -68,6 +70,22 @@ const LIFE_EVENT_CUSTOMERS = [
     phone: "+65 9014 5572",
     status: { key: "life-event", label: "Life event" },
     eventLabel: "Getting married",
+    notes: "",
+  },
+  {
+    id: "h-hp-01",
+    scenarioId: "h-hp-01",
+    initials: "WL",
+    fullName: "Wei Lin Chen",
+    age: 38,
+    occupation: "Engineer, Greenfield Engr",
+    segment: "Priority",
+    aum: 164200,
+    lastContactDays: 3,
+    phone: "+65 8123 4011",
+    status: { key: "life-event", label: "Life event" },
+    eventLabel: "Home purchase / renovation",
+    notes: "",
   },
 ];
 
@@ -119,6 +137,7 @@ function buildFillerCustomers(count) {
       phone: phoneFromHash(h),
       status,
       eventLabel: null,
+      notes: "",
     });
   }
   return list;

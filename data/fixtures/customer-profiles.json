@@ -1,0 +1,235 @@
+{
+  "new-parent": {
+    "id": "new-parent",
+    "persona": {
+      "fullName": "Amira Malik",
+      "initials": "AM",
+      "age": 34,
+      "occupation": "Product Director",
+      "employer": "Nimbus Labs",
+      "maritalStatus": "Married",
+      "dependants": 1,
+      "tenureMonths": 76,
+      "riskProfile": "Balanced",
+      "contactConsent": true,
+      "phone": "+65 9123 8841",
+      "segment": "Priority",
+      "totalAssets": 186400,
+      "monthlyIncome": 6200,
+      "liabilities": 38400,
+      "productsHeld": [
+        "Everyday Account",
+        "Rewards Card",
+        "Balanced Portfolio"
+      ],
+      "goals": [
+        "Build family safety net",
+        "Fund child's education",
+        "Retain liquidity"
+      ]
+    },
+    "baseline": {
+      "avgMonthlyIncome": 6200,
+      "avgMonthlySpend": 4650,
+      "liquidBalance": 14200,
+      "emergencyFundMonths": 3.1,
+      "protectionCover": 180000,
+      "estimatedProtectionNeed": 600000
+    },
+    "candidates": [
+      {
+        "name": "Family Protection Plan",
+        "type": "PROTECTION",
+        "annualValue": 2400,
+        "baseFit": 96,
+        "reason": "New dependant and a S$420K protection gap.",
+        "impact": "Protects 7 years of household income",
+        "monthlyImpact": 480,
+        "checks": [
+          "contactConsent",
+          "positiveSurplus"
+        ]
+      },
+      {
+        "name": "SmartSaver Plus",
+        "type": "SAVINGS",
+        "annualValue": 1250,
+        "baseFit": 91,
+        "reason": "Childcare costs reduce the existing emergency runway.",
+        "impact": "Builds a 4-month family buffer",
+        "monthlyImpact": 350,
+        "checks": [
+          "positiveSurplus"
+        ]
+      },
+      {
+        "name": "Education Builder",
+        "type": "INVESTMENT",
+        "annualValue": 900,
+        "baseFit": 84,
+        "reason": "18-year goal horizon and balanced risk profile.",
+        "impact": "Potential S$82K education fund",
+        "monthlyImpact": 250,
+        "checks": [
+          "balancedRisk",
+          "positiveSurplus"
+        ]
+      }
+    ]
+  },
+  "job-loss": {
+    "id": "job-loss",
+    "persona": {
+      "fullName": "Daniel Tan",
+      "initials": "DT",
+      "age": 42,
+      "occupation": "Operations Lead",
+      "employer": "Formerly Vertex Logistics",
+      "maritalStatus": "Married",
+      "dependants": 2,
+      "tenureMonths": 109,
+      "riskProfile": "Conservative",
+      "contactConsent": true,
+      "phone": "+65 9782 3306",
+      "segment": "Priority",
+      "totalAssets": 312800,
+      "monthlyIncome": 0,
+      "liabilities": 221000,
+      "productsHeld": [
+        "Everyday Account",
+        "Home Loan",
+        "Term Deposit"
+      ],
+      "goals": [
+        "Preserve cash runway",
+        "Maintain essential cover",
+        "Return to stable income"
+      ]
+    },
+    "baseline": {
+      "avgMonthlyIncome": 7800,
+      "avgMonthlySpend": 3850,
+      "liquidBalance": 14500,
+      "emergencyFundMonths": 3.8,
+      "protectionCover": 450000,
+      "estimatedProtectionNeed": 520000
+    },
+    "candidates": [
+      {
+        "name": "Payment Relief Programme",
+        "type": "SUPPORT",
+        "annualValue": 0,
+        "baseFit": 98,
+        "reason": "Two missing payroll cycles while home-loan payments continue.",
+        "impact": "Extends cash runway by 3 months",
+        "monthlyImpact": 1200,
+        "checks": [
+          "contactConsent",
+          "mortgageHolder"
+        ]
+      },
+      {
+        "name": "FlexiCash Reserve",
+        "type": "LIQUIDITY",
+        "annualValue": 780,
+        "baseFit": 89,
+        "reason": "Short-term liquidity pressure with strong repayment history.",
+        "impact": "Creates an emergency bridge",
+        "monthlyImpact": 420,
+        "checks": [
+          "contactConsent"
+        ]
+      },
+      {
+        "name": "Career Transition Cover",
+        "type": "PROTECTION",
+        "annualValue": 816,
+        "baseFit": 78,
+        "reason": "Existing protection should be reviewed during employment transition.",
+        "impact": "Maintains essential coverage",
+        "monthlyImpact": 310,
+        "checks": [
+          "contactConsent"
+        ]
+      }
+    ]
+  },
+  "wedding": {
+    "id": "wedding",
+    "persona": {
+      "fullName": "Priya Shah",
+      "initials": "PS",
+      "age": 31,
+      "occupation": "Legal Counsel",
+      "employer": "Meridian Legal",
+      "maritalStatus": "Engaged",
+      "dependants": 0,
+      "tenureMonths": 56,
+      "riskProfile": "Growth",
+      "contactConsent": true,
+      "phone": "+65 9014 5572",
+      "segment": "Priority",
+      "totalAssets": 228600,
+      "monthlyIncome": 7800,
+      "liabilities": 12400,
+      "productsHeld": [
+        "Everyday Account",
+        "Travel Card",
+        "Growth Portfolio"
+      ],
+      "goals": [
+        "Manage wedding payments",
+        "Combine finances",
+        "Buy a home in 3 years"
+      ]
+    },
+    "baseline": {
+      "avgMonthlyIncome": 7800,
+      "avgMonthlySpend": 5100,
+      "liquidBalance": 15700,
+      "emergencyFundMonths": 3.1,
+      "protectionCover": 250000,
+      "estimatedProtectionNeed": 300000
+    },
+    "candidates": [
+      {
+        "name": "Premier Joint Account",
+        "type": "BANKING",
+        "annualValue": 600,
+        "baseFit": 97,
+        "reason": "Repeated partner contributions and shared vendor expenses.",
+        "impact": "One view of shared finances",
+        "monthlyImpact": 900,
+        "checks": [
+          "contactConsent"
+        ]
+      },
+      {
+        "name": "Celebration Instalments",
+        "type": "CREDIT",
+        "annualValue": 520,
+        "baseFit": 90,
+        "reason": "S$7,930 of wedding payments cluster within 90 days.",
+        "impact": "Smooths peak vendor payments",
+        "monthlyImpact": 700,
+        "checks": [
+          "contactConsent",
+          "positiveSurplus"
+        ]
+      },
+      {
+        "name": "Couples Wealth Plan",
+        "type": "INVESTMENT",
+        "annualValue": 1100,
+        "baseFit": 83,
+        "reason": "Strong surplus and a stated three-year home goal.",
+        "impact": "Starts a shared wealth journey",
+        "monthlyImpact": 600,
+        "checks": [
+          "growthRisk",
+          "positiveSurplus"
+        ]
+      }
+    ]
+  }
+}

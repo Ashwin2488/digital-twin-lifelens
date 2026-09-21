@@ -1,0 +1,2669 @@
+{
+  "portfolioSize": 148,
+  "customers": [
+    {
+      "id": "new-parent",
+      "scenarioId": "new-parent",
+      "initials": "AM",
+      "fullName": "Amira Malik",
+      "age": 34,
+      "occupation": "Product Director",
+      "segment": "Priority",
+      "aum": 186400,
+      "lastContactDays": 12,
+      "phone": "+65 9123 8841",
+      "status": {
+        "key": "life-event",
+        "label": "Life event"
+      },
+      "eventLabel": "New baby and daycare",
+      "notes": ""
+    },
+    {
+      "id": "job-loss",
+      "scenarioId": "job-loss",
+      "initials": "DT",
+      "fullName": "Daniel Tan",
+      "age": 42,
+      "occupation": "Operations Lead",
+      "segment": "Priority",
+      "aum": 312800,
+      "lastContactDays": 5,
+      "phone": "+65 9782 3306",
+      "status": {
+        "key": "life-event",
+        "label": "Life event"
+      },
+      "eventLabel": "Income transition",
+      "notes": ""
+    },
+    {
+      "id": "wedding",
+      "scenarioId": "wedding",
+      "initials": "PS",
+      "fullName": "Priya Shah",
+      "age": 31,
+      "occupation": "Legal Counsel",
+      "segment": "Priority",
+      "aum": 228600,
+      "lastContactDays": 8,
+      "phone": "+65 9014 5572",
+      "status": {
+        "key": "life-event",
+        "label": "Life event"
+      },
+      "eventLabel": "Getting married",
+      "notes": ""
+    },
+    {
+      "id": "h-hp-01",
+      "scenarioId": "h-hp-01",
+      "initials": "WL",
+      "fullName": "Wei Lin Chen",
+      "age": 38,
+      "occupation": "Engineer, Greenfield Engr",
+      "segment": "Priority",
+      "aum": 164200,
+      "lastContactDays": 3,
+      "phone": "+65 8123 4011",
+      "status": {
+        "key": "life-event",
+        "label": "Life event"
+      },
+      "eventLabel": "Home purchase / renovation",
+      "notes": ""
+    },
+    {
+      "id": "c-97",
+      "scenarioId": null,
+      "initials": "AC",
+      "fullName": "Aaron Chong",
+      "age": 50,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 283000,
+      "lastContactDays": 46,
+      "phone": "+65 9006 5808",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-9",
+      "scenarioId": null,
+      "initials": "AF",
+      "fullName": "Aaron Fernandez",
+      "age": 50,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 363000,
+      "lastContactDays": 21,
+      "phone": "+65 9984 8851",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-27",
+      "scenarioId": null,
+      "initials": "AL",
+      "fullName": "Aaron Lee",
+      "age": 42,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 523000,
+      "lastContactDays": 21,
+      "phone": "+65 8470 1905",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-132",
+      "scenarioId": null,
+      "initials": "AL",
+      "fullName": "Aaron Liu",
+      "age": 50,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 563000,
+      "lastContactDays": 26,
+      "phone": "+65 9390 3400",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-74",
+      "scenarioId": null,
+      "initials": "AT",
+      "fullName": "Aaron Teo",
+      "age": 42,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 243000,
+      "lastContactDays": 41,
+      "phone": "+65 8691 2966",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-77",
+      "scenarioId": null,
+      "initials": "AY",
+      "fullName": "Aaron Yeo",
+      "age": 34,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 283000,
+      "lastContactDays": 41,
+      "phone": "+65 8149 1813",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-35",
+      "scenarioId": null,
+      "initials": "AC",
+      "fullName": "Adrian Chua",
+      "age": 54,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 503000,
+      "lastContactDays": 21,
+      "phone": "+65 8407 0057",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-17",
+      "scenarioId": null,
+      "initials": "AC",
+      "fullName": "Adrian Cruz",
+      "age": 46,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 503000,
+      "lastContactDays": 46,
+      "phone": "+65 9919 9483",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-30",
+      "scenarioId": null,
+      "initials": "AH",
+      "fullName": "Adrian Ho",
+      "age": 30,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 623000,
+      "lastContactDays": 11,
+      "phone": "+65 9127 1716",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-139",
+      "scenarioId": null,
+      "initials": "AI",
+      "fullName": "Adrian Ibrahim",
+      "age": 46,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 423000,
+      "lastContactDays": 51,
+      "phone": "+65 9325 5792",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-69",
+      "scenarioId": null,
+      "initials": "AK",
+      "fullName": "Adrian Koh",
+      "age": 46,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 223000,
+      "lastContactDays": 6,
+      "phone": "+65 8081 7085",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-1",
+      "scenarioId": null,
+      "initials": "AL",
+      "fullName": "Adrian Lau",
+      "age": 54,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 63000,
+      "lastContactDays": 51,
+      "phone": "+65 8050 3500",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-114",
+      "scenarioId": null,
+      "initials": "AO",
+      "fullName": "Adrian Ong",
+      "age": 46,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 303000,
+      "lastContactDays": 11,
+      "phone": "+65 8975 4835",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-94",
+      "scenarioId": null,
+      "initials": "AY",
+      "fullName": "Adrian Yeo",
+      "age": 30,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 263000,
+      "lastContactDays": 16,
+      "phone": "+65 9833 7630",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-65",
+      "scenarioId": null,
+      "initials": "JH",
+      "fullName": "Jia Hui Chua",
+      "age": 51,
+      "occupation": "Civil Engineer",
+      "segment": "Priority",
+      "aum": 588000,
+      "lastContactDays": 26,
+      "phone": "+65 9352 6830",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-134",
+      "scenarioId": null,
+      "initials": "JH",
+      "fullName": "Jia Hui Cruz",
+      "age": 35,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 708000,
+      "lastContactDays": 56,
+      "phone": "+65 8000 9895",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-137",
+      "scenarioId": null,
+      "initials": "JH",
+      "fullName": "Jia Hui Koh",
+      "age": 59,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 428000,
+      "lastContactDays": 11,
+      "phone": "+65 8782 8772",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-33",
+      "scenarioId": null,
+      "initials": "JH",
+      "fullName": "Jia Hui Lau",
+      "age": 51,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 548000,
+      "lastContactDays": 31,
+      "phone": "+65 9704 1227",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-37",
+      "scenarioId": null,
+      "initials": "JH",
+      "fullName": "Jia Hui Pereira",
+      "age": 43,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 708000,
+      "lastContactDays": 51,
+      "phone": "+65 9014 4651",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-13",
+      "scenarioId": null,
+      "initials": "KF",
+      "fullName": "Kai Fernandez",
+      "age": 40,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 513000,
+      "lastContactDays": 11,
+      "phone": "+65 8792 4275",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-73",
+      "scenarioId": null,
+      "initials": "KK",
+      "fullName": "Kai Koh",
+      "age": 40,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 153000,
+      "lastContactDays": 51,
+      "phone": "+65 8629 7874",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-78",
+      "scenarioId": null,
+      "initials": "KL",
+      "fullName": "Kai Lee",
+      "age": 40,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 313000,
+      "lastContactDays": 21,
+      "phone": "+65 8093 5321",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-127",
+      "scenarioId": null,
+      "initials": "KL",
+      "fullName": "Kai Lim",
+      "age": 56,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 633000,
+      "lastContactDays": 11,
+      "phone": "+65 8055 7328",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-66",
+      "scenarioId": null,
+      "initials": "KC",
+      "fullName": "Kenji Chen",
+      "age": 52,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 253000,
+      "lastContactDays": 41,
+      "phone": "+65 9300 6013",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-10",
+      "scenarioId": null,
+      "initials": "KC",
+      "fullName": "Kenji Chua",
+      "age": 28,
+      "occupation": "UX Designer",
+      "segment": "Priority",
+      "aum": 53000,
+      "lastContactDays": 21,
+      "phone": "+65 9456 5606",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-105",
+      "scenarioId": null,
+      "initials": "KG",
+      "fullName": "Kenji Goh",
+      "age": 36,
+      "occupation": "Civil Engineer",
+      "segment": "Premium",
+      "aum": 293000,
+      "lastContactDays": 6,
+      "phone": "+65 8981 5851",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-142",
+      "scenarioId": null,
+      "initials": "KR",
+      "fullName": "Kenji Rahman",
+      "age": 36,
+      "occupation": "Consultant",
+      "segment": "Priority",
+      "aum": 533000,
+      "lastContactDays": 16,
+      "phone": "+65 9458 8814",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-7",
+      "scenarioId": null,
+      "initials": "ML",
+      "fullName": "Mei Ling Chua",
+      "age": 47,
+      "occupation": "Civil Engineer",
+      "segment": "Priority",
+      "aum": 88000,
+      "lastContactDays": 6,
+      "phone": "+65 8115 9833",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-68",
+      "scenarioId": null,
+      "initials": "ML",
+      "fullName": "Mei Ling Dass",
+      "age": 39,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 168000,
+      "lastContactDays": 6,
+      "phone": "+65 9366 2628",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-57",
+      "scenarioId": null,
+      "initials": "ML",
+      "fullName": "Mei Ling Goh",
+      "age": 47,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 448000,
+      "lastContactDays": 46,
+      "phone": "+65 9898 5571",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-3",
+      "scenarioId": null,
+      "initials": "ML",
+      "fullName": "Mei Ling Ho",
+      "age": 39,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 488000,
+      "lastContactDays": 26,
+      "phone": "+65 8660 8234",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-108",
+      "scenarioId": null,
+      "initials": "ML",
+      "fullName": "Mei Ling Singh",
+      "age": 31,
+      "occupation": "Civil Engineer",
+      "segment": "Priority",
+      "aum": 368000,
+      "lastContactDays": 11,
+      "phone": "+65 9649 1717",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-19",
+      "scenarioId": null,
+      "initials": "ML",
+      "fullName": "Mei Ling Yeo",
+      "age": 31,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 688000,
+      "lastContactDays": 6,
+      "phone": "+65 8528 3578",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-136",
+      "scenarioId": null,
+      "initials": "MX",
+      "fullName": "Mei Xin Chua",
+      "age": 37,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 198000,
+      "lastContactDays": 26,
+      "phone": "+65 8655 0536",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-50",
+      "scenarioId": null,
+      "initials": "MX",
+      "fullName": "Mei Xin Fernandez",
+      "age": 53,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 518000,
+      "lastContactDays": 56,
+      "phone": "+65 8223 9694",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-80",
+      "scenarioId": null,
+      "initials": "MX",
+      "fullName": "Mei Xin Yeo",
+      "age": 53,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 398000,
+      "lastContactDays": 21,
+      "phone": "+65 8575 5371",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-126",
+      "scenarioId": null,
+      "initials": "PC",
+      "fullName": "Priya Chua",
+      "age": 41,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 698000,
+      "lastContactDays": 11,
+      "phone": "+65 9992 9034",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-92",
+      "scenarioId": null,
+      "initials": "PN",
+      "fullName": "Priya Ng",
+      "age": 41,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 498000,
+      "lastContactDays": 11,
+      "phone": "+65 8278 4244",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-28",
+      "scenarioId": null,
+      "initials": "PP",
+      "fullName": "Priya Patel",
+      "age": 41,
+      "occupation": "UX Designer",
+      "segment": "Private",
+      "aum": 218000,
+      "lastContactDays": 21,
+      "phone": "+65 8973 7358",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-107",
+      "scenarioId": null,
+      "initials": "PT",
+      "fullName": "Priya Teo",
+      "age": 49,
+      "occupation": "Consultant",
+      "segment": "Premium",
+      "aum": 58000,
+      "lastContactDays": 26,
+      "phone": "+65 8404 7460",
+      "status": {
+        "key": "review",
+        "label": "Review due"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-34",
+      "scenarioId": null,
+      "initials": "AC",
+      "fullName": "Arun Chua",
+      "age": 56,
+      "occupation": "Operations Manager",
+      "segment": "Priority",
+      "aum": 489000,
+      "lastContactDays": 22,
+      "phone": "+65 9650 3006",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-93",
+      "scenarioId": null,
+      "initials": "AF",
+      "fullName": "Arun Fernandez",
+      "age": 40,
+      "occupation": "Physician",
+      "segment": "Premium",
+      "aum": 49000,
+      "lastContactDays": 12,
+      "phone": "+65 9771 4934",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-113",
+      "scenarioId": null,
+      "initials": "AG",
+      "fullName": "Arun Goh",
+      "age": 56,
+      "occupation": "Sales Director",
+      "segment": "Priority",
+      "aum": 89000,
+      "lastContactDays": 32,
+      "phone": "+65 8913 4859",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-2",
+      "scenarioId": null,
+      "initials": "AI",
+      "fullName": "Arun Ibrahim",
+      "age": 40,
+      "occupation": "Operations Manager",
+      "segment": "Priority",
+      "aum": 689000,
+      "lastContactDays": 12,
+      "phone": "+65 9389 4974",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-18",
+      "scenarioId": null,
+      "initials": "AK",
+      "fullName": "Arun Koh",
+      "age": 48,
+      "occupation": "Operations Manager",
+      "segment": "Priority",
+      "aum": 89000,
+      "lastContactDays": 17,
+      "phone": "+65 9520 4270",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-63",
+      "scenarioId": null,
+      "initials": "AL",
+      "fullName": "Arun Lau",
+      "age": 32,
+      "occupation": "Operations Manager",
+      "segment": "Priority",
+      "aum": 369000,
+      "lastContactDays": 22,
+      "phone": "+65 9962 5480",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-23",
+      "scenarioId": null,
+      "initials": "AR",
+      "fullName": "Arun Rahman",
+      "age": 56,
+      "occupation": "Sales Director",
+      "segment": "Priority",
+      "aum": 169000,
+      "lastContactDays": 7,
+      "phone": "+65 8247 4570",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-60",
+      "scenarioId": null,
+      "initials": "AS",
+      "fullName": "Arun Sim",
+      "age": 56,
+      "occupation": "Physician",
+      "segment": "Premium",
+      "aum": 249000,
+      "lastContactDays": 37,
+      "phone": "+65 9235 8541",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-22",
+      "scenarioId": null,
+      "initials": "ET",
+      "fullName": "Ethan Tan",
+      "age": 42,
+      "occupation": "Operations Manager",
+      "segment": "Priority",
+      "aum": 579000,
+      "lastContactDays": 17,
+      "phone": "+65 9192 4580",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-36",
+      "scenarioId": null,
+      "initials": "FA",
+      "fullName": "Farah Ali",
+      "age": 37,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 134000,
+      "lastContactDays": 32,
+      "phone": "+65 9040 8542",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-64",
+      "scenarioId": null,
+      "initials": "FP",
+      "fullName": "Farah Patel",
+      "age": 45,
+      "occupation": "Sales Director",
+      "segment": "Premium",
+      "aum": 654000,
+      "lastContactDays": 27,
+      "phone": "+65 8088 5054",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-4",
+      "scenarioId": null,
+      "initials": "FR",
+      "fullName": "Farah Rahman",
+      "age": 53,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 654000,
+      "lastContactDays": 22,
+      "phone": "+65 8778 9950",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-46",
+      "scenarioId": null,
+      "initials": "FS",
+      "fullName": "Farah Sim",
+      "age": 53,
+      "occupation": "Physician",
+      "segment": "Priority",
+      "aum": 294000,
+      "lastContactDays": 12,
+      "phone": "+65 8494 9141",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-96",
+      "scenarioId": null,
+      "initials": "FS",
+      "fullName": "Farah Singh",
+      "age": 45,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 54000,
+      "lastContactDays": 22,
+      "phone": "+65 8441 3851",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-120",
+      "scenarioId": null,
+      "initials": "FY",
+      "fullName": "Farah Yeo",
+      "age": 37,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 694000,
+      "lastContactDays": 42,
+      "phone": "+65 9925 0962",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-71",
+      "scenarioId": null,
+      "initials": "IL",
+      "fullName": "Isabelle Lee",
+      "age": 57,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 434000,
+      "lastContactDays": 12,
+      "phone": "+65 8022 3766",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-12",
+      "scenarioId": null,
+      "initials": "IW",
+      "fullName": "Isabelle Wong",
+      "age": 49,
+      "occupation": "Physician",
+      "segment": "Priority",
+      "aum": 314000,
+      "lastContactDays": 17,
+      "phone": "+65 8846 9038",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-5",
+      "scenarioId": null,
+      "initials": "RN",
+      "fullName": "Ryan Ng",
+      "age": 28,
+      "occupation": "Physician",
+      "segment": "Premium",
+      "aum": 389000,
+      "lastContactDays": 12,
+      "phone": "+65 8728 2803",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-49",
+      "scenarioId": null,
+      "initials": "TC",
+      "fullName": "Tanya Chong",
+      "age": 59,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 404000,
+      "lastContactDays": 37,
+      "phone": "+65 9831 4939",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-91",
+      "scenarioId": null,
+      "initials": "TC",
+      "fullName": "Tanya Chua",
+      "age": 35,
+      "occupation": "Sales Director",
+      "segment": "Premium",
+      "aum": 604000,
+      "lastContactDays": 32,
+      "phone": "+65 9164 3140",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-11",
+      "scenarioId": null,
+      "initials": "TC",
+      "fullName": "Tanya Cruz",
+      "age": 35,
+      "occupation": "Operations Manager",
+      "segment": "Private",
+      "aum": 524000,
+      "lastContactDays": 22,
+      "phone": "+65 8592 9522",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-15",
+      "scenarioId": null,
+      "initials": "TI",
+      "fullName": "Tanya Ibrahim",
+      "age": 59,
+      "occupation": "Sales Director",
+      "segment": "Premium",
+      "aum": 564000,
+      "lastContactDays": 12,
+      "phone": "+65 8184 7897",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-101",
+      "scenarioId": null,
+      "initials": "TL",
+      "fullName": "Tanya Lim",
+      "age": 35,
+      "occupation": "Physician",
+      "segment": "Priority",
+      "aum": 204000,
+      "lastContactDays": 47,
+      "phone": "+65 9717 5741",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-123",
+      "scenarioId": null,
+      "initials": "TS",
+      "fullName": "Tanya Sim",
+      "age": 35,
+      "occupation": "Sales Director",
+      "segment": "Premium",
+      "aum": 524000,
+      "lastContactDays": 12,
+      "phone": "+65 9262 6001",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-122",
+      "scenarioId": null,
+      "initials": "VC",
+      "fullName": "Victor Chong",
+      "age": 30,
+      "occupation": "Physician",
+      "segment": "Premium",
+      "aum": 159000,
+      "lastContactDays": 27,
+      "phone": "+65 8183 5644",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-38",
+      "scenarioId": null,
+      "initials": "VP",
+      "fullName": "Victor Pereira",
+      "age": 54,
+      "occupation": "Sales Director",
+      "segment": "Priority",
+      "aum": 119000,
+      "lastContactDays": 47,
+      "phone": "+65 8433 4818",
+      "status": {
+        "key": "new",
+        "label": "New relationship"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-130",
+      "scenarioId": null,
+      "initials": "AF",
+      "fullName": "Aisha Fernandez",
+      "age": 31,
+      "occupation": "HR Business Partner",
+      "segment": "Private",
+      "aum": 496000,
+      "lastContactDays": 44,
+      "phone": "+65 8716 7092",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-72",
+      "scenarioId": null,
+      "initials": "AT",
+      "fullName": "Aisha Tan",
+      "age": 55,
+      "occupation": "Teacher",
+      "segment": "Premium",
+      "aum": 96000,
+      "lastContactDays": 4,
+      "phone": "+65 9420 8486",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-25",
+      "scenarioId": null,
+      "initials": "AT",
+      "fullName": "Aisha Teo",
+      "age": 31,
+      "occupation": "HR Business Partner",
+      "segment": "Private",
+      "aum": 616000,
+      "lastContactDays": 44,
+      "phone": "+65 9636 3907",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-100",
+      "scenarioId": null,
+      "initials": "AC",
+      "fullName": "Ananya Chong",
+      "age": 29,
+      "occupation": "Software Engineer",
+      "segment": "Premium",
+      "aum": 390000,
+      "lastContactDays": 13,
+      "phone": "+65 8339 4204",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-61",
+      "scenarioId": null,
+      "initials": "AP",
+      "fullName": "Ananya Pereira",
+      "age": 45,
+      "occupation": "Architect",
+      "segment": "Private",
+      "aum": 710000,
+      "lastContactDays": 13,
+      "phone": "+65 8623 9733",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-84",
+      "scenarioId": null,
+      "initials": "AT",
+      "fullName": "Ananya Tan",
+      "age": 37,
+      "occupation": "Architect",
+      "segment": "Private",
+      "aum": 630000,
+      "lastContactDays": 48,
+      "phone": "+65 8210 5628",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-44",
+      "scenarioId": null,
+      "initials": "BC",
+      "fullName": "Benjamin Chen",
+      "age": 32,
+      "occupation": "Marketing Lead",
+      "segment": "Priority",
+      "aum": 337000,
+      "lastContactDays": 25,
+      "phone": "+65 9105 2813",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-135",
+      "scenarioId": null,
+      "initials": "CC",
+      "fullName": "Cheng Chua",
+      "age": 40,
+      "occupation": "Architect",
+      "segment": "Priority",
+      "aum": 665000,
+      "lastContactDays": 53,
+      "phone": "+65 9393 2638",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-131",
+      "scenarioId": null,
+      "initials": "CC",
+      "fullName": "Cheng Cruz",
+      "age": 56,
+      "occupation": "Architect",
+      "segment": "Priority",
+      "aum": 625000,
+      "lastContactDays": 23,
+      "phone": "+65 9333 3340",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-118",
+      "scenarioId": null,
+      "initials": "CF",
+      "fullName": "Cheng Fernandez",
+      "age": 56,
+      "occupation": "Architect",
+      "segment": "Priority",
+      "aum": 345000,
+      "lastContactDays": 33,
+      "phone": "+65 8535 5603",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-39",
+      "scenarioId": null,
+      "initials": "CH",
+      "fullName": "Cheng Ho",
+      "age": 32,
+      "occupation": "Software Engineer",
+      "segment": "Priority",
+      "aum": 465000,
+      "lastContactDays": 3,
+      "phone": "+65 8378 2042",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-98",
+      "scenarioId": null,
+      "initials": "CI",
+      "fullName": "Cheng Ibrahim",
+      "age": 56,
+      "occupation": "Data Analyst",
+      "segment": "Premium",
+      "aum": 185000,
+      "lastContactDays": 38,
+      "phone": "+65 8950 6468",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-56",
+      "scenarioId": null,
+      "initials": "DT",
+      "fullName": "Dev Teo",
+      "age": 34,
+      "occupation": "Software Engineer",
+      "segment": "Priority",
+      "aum": 635000,
+      "lastContactDays": 48,
+      "phone": "+65 9549 2793",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-102",
+      "scenarioId": null,
+      "initials": "DW",
+      "fullName": "Dev Wong",
+      "age": 42,
+      "occupation": "Software Engineer",
+      "segment": "Priority",
+      "aum": 115000,
+      "lastContactDays": 23,
+      "phone": "+65 9761 8614",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-21",
+      "scenarioId": null,
+      "initials": "GC",
+      "fullName": "Grace Chen",
+      "age": 51,
+      "occupation": "Teacher",
+      "segment": "Premium",
+      "aum": 156000,
+      "lastContactDays": 4,
+      "phone": "+65 9148 7995",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-62",
+      "scenarioId": null,
+      "initials": "GT",
+      "fullName": "Grace Tan",
+      "age": 51,
+      "occupation": "Teacher",
+      "segment": "Premium",
+      "aum": 676000,
+      "lastContactDays": 39,
+      "phone": "+65 9432 6244",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-103",
+      "scenarioId": null,
+      "initials": "HS",
+      "fullName": "Hannah Sim",
+      "age": 49,
+      "occupation": "Teacher",
+      "segment": "Premium",
+      "aum": 506000,
+      "lastContactDays": 39,
+      "phone": "+65 8370 9035",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-40",
+      "scenarioId": null,
+      "initials": "HT",
+      "fullName": "Hannah Teo",
+      "age": 57,
+      "occupation": "HR Business Partner",
+      "segment": "Private",
+      "aum": 266000,
+      "lastContactDays": 9,
+      "phone": "+65 9670 5080",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-42",
+      "scenarioId": null,
+      "initials": "HW",
+      "fullName": "Hui Wen Goh",
+      "age": 41,
+      "occupation": "Data Analyst",
+      "segment": "Priority",
+      "aum": 690000,
+      "lastContactDays": 28,
+      "phone": "+65 8291 0454",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-26",
+      "scenarioId": null,
+      "initials": "JL",
+      "fullName": "Jonah Lee",
+      "age": 52,
+      "occupation": "HR Business Partner",
+      "segment": "Priority",
+      "aum": 301000,
+      "lastContactDays": 19,
+      "phone": "+65 9584 8550",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-124",
+      "scenarioId": null,
+      "initials": "JL",
+      "fullName": "Jonah Lim",
+      "age": 44,
+      "occupation": "HR Business Partner",
+      "segment": "Priority",
+      "aum": 461000,
+      "lastContactDays": 24,
+      "phone": "+65 8601 2027",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-110",
+      "scenarioId": null,
+      "initials": "JN",
+      "fullName": "Jonah Ng",
+      "age": 36,
+      "occupation": "Finance Manager",
+      "segment": "Premium",
+      "aum": 501000,
+      "lastContactDays": 4,
+      "phone": "+65 9743 8071",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-45",
+      "scenarioId": null,
+      "initials": "LA",
+      "fullName": "Leila Ali",
+      "age": 31,
+      "occupation": "Architect",
+      "segment": "Private",
+      "aum": 360000,
+      "lastContactDays": 8,
+      "phone": "+65 8945 6715",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-119",
+      "scenarioId": null,
+      "initials": "LG",
+      "fullName": "Leila Goh",
+      "age": 55,
+      "occupation": "Data Analyst",
+      "segment": "Priority",
+      "aum": 120000,
+      "lastContactDays": 43,
+      "phone": "+65 9513 1253",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-129",
+      "scenarioId": null,
+      "initials": "LO",
+      "fullName": "Leila Ong",
+      "age": 47,
+      "occupation": "Architect",
+      "segment": "Private",
+      "aum": 160000,
+      "lastContactDays": 13,
+      "phone": "+65 9329 4865",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-83",
+      "scenarioId": null,
+      "initials": "LP",
+      "fullName": "Leila Patel",
+      "age": 31,
+      "occupation": "Software Engineer",
+      "segment": "Premium",
+      "aum": 240000,
+      "lastContactDays": 53,
+      "phone": "+65 9230 5204",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-32",
+      "scenarioId": null,
+      "initials": "LF",
+      "fullName": "Lina Fernandez",
+      "age": 45,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 182000,
+      "lastContactDays": 20,
+      "phone": "+65 9735 3824",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-16",
+      "scenarioId": null,
+      "initials": "LL",
+      "fullName": "Lina Lee",
+      "age": 53,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 582000,
+      "lastContactDays": 55,
+      "phone": "+65 9870 9680",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-111",
+      "scenarioId": null,
+      "initials": "LN",
+      "fullName": "Lina Ng",
+      "age": 37,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 342000,
+      "lastContactDays": 20,
+      "phone": "+65 8306 8203",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-20",
+      "scenarioId": null,
+      "initials": "LP",
+      "fullName": "Lina Patel",
+      "age": 29,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 62000,
+      "lastContactDays": 40,
+      "phone": "+65 8913 1214",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-81",
+      "scenarioId": null,
+      "initials": "LI",
+      "fullName": "Lucas Ibrahim",
+      "age": 46,
+      "occupation": "Architect",
+      "segment": "Priority",
+      "aum": 495000,
+      "lastContactDays": 3,
+      "phone": "+65 8619 2310",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-51",
+      "scenarioId": null,
+      "initials": "LL",
+      "fullName": "Lucas Lau",
+      "age": 46,
+      "occupation": "Data Analyst",
+      "segment": "Premium",
+      "aum": 655000,
+      "lastContactDays": 38,
+      "phone": "+65 8269 7753",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-48",
+      "scenarioId": null,
+      "initials": "LP",
+      "fullName": "Lucas Pereira",
+      "age": 38,
+      "occupation": "Software Engineer",
+      "segment": "Priority",
+      "aum": 415000,
+      "lastContactDays": 28,
+      "phone": "+65 9612 4401",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-14",
+      "scenarioId": null,
+      "initials": "LY",
+      "fullName": "Lucas Yeo",
+      "age": 54,
+      "occupation": "Architect",
+      "segment": "Priority",
+      "aum": 215000,
+      "lastContactDays": 23,
+      "phone": "+65 9264 7844",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-109",
+      "scenarioId": null,
+      "initials": "MF",
+      "fullName": "Marcus Fernandez",
+      "age": 34,
+      "occupation": "Finance Manager",
+      "segment": "Premium",
+      "aum": 171000,
+      "lastContactDays": 34,
+      "phone": "+65 9797 1143",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-115",
+      "scenarioId": null,
+      "initials": "MK",
+      "fullName": "Marcus Koh",
+      "age": 58,
+      "occupation": "Teacher",
+      "segment": "Priority",
+      "aum": 331000,
+      "lastContactDays": 9,
+      "phone": "+65 8248 8044",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-86",
+      "scenarioId": null,
+      "initials": "MW",
+      "fullName": "Marcus Wong",
+      "age": 34,
+      "occupation": "HR Business Partner",
+      "segment": "Priority",
+      "aum": 251000,
+      "lastContactDays": 44,
+      "phone": "+65 9897 8966",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-53",
+      "scenarioId": null,
+      "initials": "NA",
+      "fullName": "Nadia Ali",
+      "age": 35,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 292000,
+      "lastContactDays": 25,
+      "phone": "+65 8877 6539",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-95",
+      "scenarioId": null,
+      "initials": "NP",
+      "fullName": "Nadia Patel",
+      "age": 35,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 332000,
+      "lastContactDays": 10,
+      "phone": "+65 9613 9566",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-76",
+      "scenarioId": null,
+      "initials": "NT",
+      "fullName": "Nadia Teo",
+      "age": 59,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 92000,
+      "lastContactDays": 20,
+      "phone": "+65 9298 4484",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-55",
+      "scenarioId": null,
+      "initials": "NC",
+      "fullName": "Nicholas Chua",
+      "age": 48,
+      "occupation": "Teacher",
+      "segment": "Priority",
+      "aum": 721000,
+      "lastContactDays": 44,
+      "phone": "+65 9487 5157",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-82",
+      "scenarioId": null,
+      "initials": "NL",
+      "fullName": "Nicholas Lee",
+      "age": 48,
+      "occupation": "HR Business Partner",
+      "segment": "Priority",
+      "aum": 401000,
+      "lastContactDays": 29,
+      "phone": "+65 8820 2228",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-41",
+      "scenarioId": null,
+      "initials": "NA",
+      "fullName": "Nurul Ali",
+      "age": 55,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 672000,
+      "lastContactDays": 55,
+      "phone": "+65 9766 2979",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-29",
+      "scenarioId": null,
+      "initials": "NF",
+      "fullName": "Nurul Fernandez",
+      "age": 55,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 312000,
+      "lastContactDays": 45,
+      "phone": "+65 9081 6203",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-144",
+      "scenarioId": null,
+      "initials": "NL",
+      "fullName": "Nurul Lee",
+      "age": 55,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 592000,
+      "lastContactDays": 10,
+      "phone": "+65 8850 6324",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-116",
+      "scenarioId": null,
+      "initials": "NP",
+      "fullName": "Nurul Pereira",
+      "age": 55,
+      "occupation": "Pharmacist",
+      "segment": "Premium",
+      "aum": 552000,
+      "lastContactDays": 5,
+      "phone": "+65 9197 1761",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-104",
+      "scenarioId": null,
+      "initials": "NT",
+      "fullName": "Nurul Tan",
+      "age": 31,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 632000,
+      "lastContactDays": 55,
+      "phone": "+65 9067 2145",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-87",
+      "scenarioId": null,
+      "initials": "NW",
+      "fullName": "Nurul Wong",
+      "age": 47,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 72000,
+      "lastContactDays": 10,
+      "phone": "+65 9550 0678",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-43",
+      "scenarioId": null,
+      "initials": "OL",
+      "fullName": "Omar Lee",
+      "age": 50,
+      "occupation": "Marketing Lead",
+      "segment": "Priority",
+      "aum": 547000,
+      "lastContactDays": 15,
+      "phone": "+65 8334 9873",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-106",
+      "scenarioId": null,
+      "initials": "OL",
+      "fullName": "Omar Liu",
+      "age": 42,
+      "occupation": "Marketing Lead",
+      "segment": "Priority",
+      "aum": 547000,
+      "lastContactDays": 50,
+      "phone": "+65 9040 1187",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-128",
+      "scenarioId": null,
+      "initials": "OO",
+      "fullName": "Omar Ong",
+      "age": 34,
+      "occupation": "Accountant",
+      "segment": "Premium",
+      "aum": 427000,
+      "lastContactDays": 40,
+      "phone": "+65 8118 1644",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-6",
+      "scenarioId": null,
+      "initials": "OP",
+      "fullName": "Omar Patel",
+      "age": 50,
+      "occupation": "Accountant",
+      "segment": "Premium",
+      "aum": 507000,
+      "lastContactDays": 25,
+      "phone": "+65 9328 2004",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-79",
+      "scenarioId": null,
+      "initials": "RD",
+      "fullName": "Raj Dass",
+      "age": 38,
+      "occupation": "Pharmacist",
+      "segment": "Priority",
+      "aum": 407000,
+      "lastContactDays": 35,
+      "phone": "+65 9964 1550",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-117",
+      "scenarioId": null,
+      "initials": "RL",
+      "fullName": "Raj Liu",
+      "age": 38,
+      "occupation": "Accountant",
+      "segment": "Premium",
+      "aum": 327000,
+      "lastContactDays": 35,
+      "phone": "+65 8587 7427",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-141",
+      "scenarioId": null,
+      "initials": "RR",
+      "fullName": "Raj Rahman",
+      "age": 46,
+      "occupation": "Marketing Lead",
+      "segment": "Priority",
+      "aum": 367000,
+      "lastContactDays": 5,
+      "phone": "+65 9512 8170",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-54",
+      "scenarioId": null,
+      "initials": "RC",
+      "fullName": "Rina Chong",
+      "age": 33,
+      "occupation": "Pharmacist",
+      "segment": "Premium",
+      "aum": 282000,
+      "lastContactDays": 25,
+      "phone": "+65 8562 9237",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-88",
+      "scenarioId": null,
+      "initials": "RC",
+      "fullName": "Rina Cruz",
+      "age": 41,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 482000,
+      "lastContactDays": 10,
+      "phone": "+65 8506 9227",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-67",
+      "scenarioId": null,
+      "initials": "RL",
+      "fullName": "Rina Liu",
+      "age": 41,
+      "occupation": "Pharmacist",
+      "segment": "Premium",
+      "aum": 322000,
+      "lastContactDays": 25,
+      "phone": "+65 8689 2933",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-8",
+      "scenarioId": null,
+      "initials": "RP",
+      "fullName": "Rina Patel",
+      "age": 41,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 442000,
+      "lastContactDays": 45,
+      "phone": "+65 9938 7608",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-143",
+      "scenarioId": null,
+      "initials": "RP",
+      "fullName": "Rina Pereira",
+      "age": 57,
+      "occupation": "Marketing Lead",
+      "segment": "Private",
+      "aum": 562000,
+      "lastContactDays": 5,
+      "phone": "+65 8590 3432",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-58",
+      "scenarioId": null,
+      "initials": "RS",
+      "fullName": "Rina Singh",
+      "age": 49,
+      "occupation": "Pharmacist",
+      "segment": "Premium",
+      "aum": 322000,
+      "lastContactDays": 55,
+      "phone": "+65 8156 6870",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-140",
+      "scenarioId": null,
+      "initials": "RT",
+      "fullName": "Rina Teo",
+      "age": 33,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 162000,
+      "lastContactDays": 40,
+      "phone": "+65 8120 7115",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-24",
+      "scenarioId": null,
+      "initials": "RW",
+      "fullName": "Rina Wong",
+      "age": 49,
+      "occupation": "Accountant",
+      "segment": "Priority",
+      "aum": 442000,
+      "lastContactDays": 55,
+      "phone": "+65 9802 9432",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-121",
+      "scenarioId": null,
+      "initials": "SI",
+      "fullName": "Samuel Ibrahim",
+      "age": 44,
+      "occupation": "Marketing Lead",
+      "segment": "Priority",
+      "aum": 557000,
+      "lastContactDays": 35,
+      "phone": "+65 8123 8040",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-31",
+      "scenarioId": null,
+      "initials": "SP",
+      "fullName": "Samuel Patel",
+      "age": 52,
+      "occupation": "Marketing Lead",
+      "segment": "Priority",
+      "aum": 717000,
+      "lastContactDays": 35,
+      "phone": "+65 8311 9866",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-138",
+      "scenarioId": null,
+      "initials": "SR",
+      "fullName": "Samuel Rahman",
+      "age": 52,
+      "occupation": "Pharmacist",
+      "segment": "Priority",
+      "aum": 517000,
+      "lastContactDays": 20,
+      "phone": "+65 9266 1284",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-52",
+      "scenarioId": null,
+      "initials": "ST",
+      "fullName": "Samuel Teo",
+      "age": 44,
+      "occupation": "Accountant",
+      "segment": "Premium",
+      "aum": 557000,
+      "lastContactDays": 35,
+      "phone": "+65 9169 7101",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-75",
+      "scenarioId": null,
+      "initials": "SI",
+      "fullName": "Siti Ibrahim",
+      "age": 37,
+      "occupation": "Finance Manager",
+      "segment": "Priority",
+      "aum": 206000,
+      "lastContactDays": 4,
+      "phone": "+65 8756 4085",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-133",
+      "scenarioId": null,
+      "initials": "SL",
+      "fullName": "Siti Liu",
+      "age": 45,
+      "occupation": "Teacher",
+      "segment": "Premium",
+      "aum": 526000,
+      "lastContactDays": 24,
+      "phone": "+65 8056 2051",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-125",
+      "scenarioId": null,
+      "initials": "SA",
+      "fullName": "Sofia Ali",
+      "age": 51,
+      "occupation": "Architect",
+      "segment": "Private",
+      "aum": 700000,
+      "lastContactDays": 33,
+      "phone": "+65 9448 3005",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-112",
+      "scenarioId": null,
+      "initials": "SP",
+      "fullName": "Sofia Pereira",
+      "age": 59,
+      "occupation": "Software Engineer",
+      "segment": "Premium",
+      "aum": 700000,
+      "lastContactDays": 38,
+      "phone": "+65 9135 2321",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-90",
+      "scenarioId": null,
+      "initials": "WM",
+      "fullName": "Wei Ming Ali",
+      "age": 28,
+      "occupation": "Data Analyst",
+      "segment": "Premium",
+      "aum": 165000,
+      "lastContactDays": 3,
+      "phone": "+65 8886 0340",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-85",
+      "scenarioId": null,
+      "initials": "WM",
+      "fullName": "Wei Ming Cruz",
+      "age": 28,
+      "occupation": "Software Engineer",
+      "segment": "Priority",
+      "aum": 645000,
+      "lastContactDays": 38,
+      "phone": "+65 8158 1761",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-70",
+      "scenarioId": null,
+      "initials": "WM",
+      "fullName": "Wei Ming Goh",
+      "age": 36,
+      "occupation": "Data Analyst",
+      "segment": "Premium",
+      "aum": 285000,
+      "lastContactDays": 13,
+      "phone": "+65 8028 1025",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-47",
+      "scenarioId": null,
+      "initials": "WM",
+      "fullName": "Wei Ming Koh",
+      "age": 44,
+      "occupation": "Architect",
+      "segment": "Priority",
+      "aum": 445000,
+      "lastContactDays": 3,
+      "phone": "+65 8443 0170",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-99",
+      "scenarioId": null,
+      "initials": "ZH",
+      "fullName": "Zachary Ho",
+      "age": 54,
+      "occupation": "Teacher",
+      "segment": "Priority",
+      "aum": 111000,
+      "lastContactDays": 34,
+      "phone": "+65 9106 2499",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-89",
+      "scenarioId": null,
+      "initials": "ZL",
+      "fullName": "Zachary Lim",
+      "age": 38,
+      "occupation": "Finance Manager",
+      "segment": "Premium",
+      "aum": 391000,
+      "lastContactDays": 9,
+      "phone": "+65 8939 6688",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    },
+    {
+      "id": "c-59",
+      "scenarioId": null,
+      "initials": "ZT",
+      "fullName": "Zachary Tan",
+      "age": 30,
+      "occupation": "HR Business Partner",
+      "segment": "Priority",
+      "aum": 151000,
+      "lastContactDays": 29,
+      "phone": "+65 9291 6325",
+      "status": {
+        "key": "stable",
+        "label": "Stable"
+      },
+      "eventLabel": null,
+      "notes": ""
+    }
+  ]
+}

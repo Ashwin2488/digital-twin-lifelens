@@ -4,13 +4,32 @@
   "description": "AI digital twin demo with deterministic financial branching projections",
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js"
+    "dev": "concurrently -k \"npm:dev:api\" \"npm:dev:client\"",
+    "dev:api": "node server/index.js",
+    "dev:client": "vite --config client/vite.config.ts",
+    "start": "node server/index.js",
+    "build": "vite build --config client/vite.config.ts",
+    "seed": "node data/seed-fixtures.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.103.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "openai": "^6.8.1",
-    "zod": "^3.24.2"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "concurrently": "^10.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^7.3.6",
+    "vitest": "^3.2.4"
   }
 }

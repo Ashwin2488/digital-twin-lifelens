@@ -1,0 +1,232 @@
+[
+  {
+    "code": "PA-BASIC",
+    "name": "Personal Accident Insurance",
+    "category": "insurance",
+    "description": "Standalone accident cover.",
+    "keyFeatures": [
+      "Sum assured",
+      "Hospital cash"
+    ],
+    "publicEligibility": {
+      "minAge": 18
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": true,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "PA-FAMILY",
+    "name": "Family Protection Plan",
+    "category": "insurance",
+    "description": "Needs-led family protection conversation starter.",
+    "keyFeatures": [
+      "Income replacement framing"
+    ],
+    "publicEligibility": {
+      "minAge": 18
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": true,
+      "isInsurance": true,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "TERM-FAMILY",
+    "name": "Career Transition Cover",
+    "category": "insurance",
+    "description": "Keep essential cover during income interruption.",
+    "keyFeatures": [
+      "Term-style framing"
+    ],
+    "publicEligibility": {
+      "minAge": 21
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": true,
+      "isInsurance": true,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "PA-TRAVEL",
+    "name": "Personal Accident Insurance",
+    "category": "insurance",
+    "description": "Travel and accident overlay.",
+    "keyFeatures": [
+      "Travel period"
+    ],
+    "publicEligibility": {
+      "minAge": 18
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": true,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "WEALTH-SAVER",
+    "name": "Wealth Saver",
+    "category": "savings",
+    "description": "Savings with bonus interest positioning.",
+    "keyFeatures": [
+      "Flexible deposits"
+    ],
+    "publicEligibility": {
+      "minAge": 18
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "BONUSSAVER",
+    "name": "SmartSaver Plus",
+    "category": "savings",
+    "description": "Buffer-building savings conversation.",
+    "keyFeatures": [
+      "Bonus interest bands"
+    ],
+    "publicEligibility": {
+      "minAge": 18,
+      "minIncome": 0
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "EDU-BUILD",
+    "name": "Education Builder",
+    "category": "investment",
+    "description": "Long-horizon education funding conversation.",
+    "keyFeatures": [
+      "Regular contribution"
+    ],
+    "publicEligibility": {
+      "riskProfile": [
+        "Balanced",
+        "Growth"
+      ]
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": true,
+      "isInsurance": false,
+      "isInvestment": true
+    }
+  },
+  {
+    "code": "GROWTH-UT",
+    "name": "Couples Wealth Plan",
+    "category": "investment",
+    "description": "Shared wealth journey after a life event.",
+    "keyFeatures": [
+      "Regular savings plan"
+    ],
+    "publicEligibility": {
+      "riskProfile": [
+        "Growth"
+      ]
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": true,
+      "isInsurance": false,
+      "isInvestment": true
+    }
+  },
+  {
+    "code": "CASHONE",
+    "name": "Celebration Instalments",
+    "category": "credit",
+    "description": "Smooth a known expense cluster.",
+    "keyFeatures": [
+      "Instalment framing"
+    ],
+    "publicEligibility": {
+      "minAge": 21,
+      "minIncome": 2000
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "FLEXICASH",
+    "name": "FlexiCash Reserve",
+    "category": "credit",
+    "description": "Short-term liquidity bridge.",
+    "keyFeatures": [
+      "Revolving facility framing"
+    ],
+    "publicEligibility": {
+      "minAge": 21,
+      "minIncome": 2000
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "MORTGAGEONE",
+    "name": "MortgageOne",
+    "category": "mortgage",
+    "description": "Home-loan servicing and relief conversation.",
+    "keyFeatures": [
+      "GIRO instalment"
+    ],
+    "publicEligibility": {
+      "minAge": 21
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "JOINT",
+    "name": "Premier Joint Account",
+    "category": "savings",
+    "description": "One view of shared finances.",
+    "keyFeatures": [
+      "Joint operating account"
+    ],
+    "publicEligibility": {
+      "minAge": 18
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  },
+  {
+    "code": "RELIEF",
+    "name": "Payment Relief Programme",
+    "category": "credit",
+    "description": "Temporary instalment relief conversation.",
+    "keyFeatures": [
+      "Not a product sale"
+    ],
+    "publicEligibility": {
+      "minAge": 21
+    },
+    "complianceFlags": {
+      "requiresAdvisorSuitability": false,
+      "isInsurance": false,
+      "isInvestment": false
+    }
+  }
+]

@@ -1,0 +1,193 @@
+[
+  {
+    "id": "new-parent",
+    "title": "New Parent Cashflow Shock",
+    "customer": "Amira",
+    "event": {
+      "type": "childbirth",
+      "label": "New baby and daycare starts",
+      "confidence": 0.91,
+      "detectedMonth": "March"
+    },
+    "tone": "celebratory but practical",
+    "startingBalance": 4200,
+    "income": 6200,
+    "recurringExpenses": 4650,
+    "monthlyEvents": [
+      {
+        "month": 1,
+        "label": "Baby supplies ramp-up",
+        "amount": -450
+      },
+      {
+        "month": 2,
+        "label": "Daycare deposit",
+        "amount": -1200
+      },
+      {
+        "month": 3,
+        "label": "Daycare monthly fee begins",
+        "amount": -950,
+        "repeats": true
+      }
+    ],
+    "autopilotActions": [
+      {
+        "id": "pause_travel",
+        "label": "Pause travel sinking fund",
+        "monthlyImpact": 350,
+        "startsMonth": 1
+      },
+      {
+        "id": "baby_cashback",
+        "label": "Move groceries to 5% cashback card",
+        "monthlyImpact": 95,
+        "startsMonth": 1
+      },
+      {
+        "id": "daycare_buffer",
+        "label": "Create daycare buffer transfer",
+        "monthlyImpact": 250,
+        "startsMonth": 2
+      }
+    ],
+    "trace": [
+      "Daycare merchant appeared in March with a recurring S$950 amount.",
+      "Baby supplies category rose by S$450 in the first month.",
+      "Travel sinking fund is discretionary and has S$350 monthly outflow."
+    ],
+    "suggestedQuestions": [
+      "What should I watch out for next month?",
+      "How different are the two futures?",
+      "What changed because of daycare?"
+    ]
+  },
+  {
+    "id": "job-loss",
+    "title": "Job Loss Early Warning",
+    "customer": "Daniel",
+    "event": {
+      "type": "job_loss",
+      "label": "Salary stop detected",
+      "confidence": 0.87,
+      "detectedMonth": "May"
+    },
+    "tone": "supportive and calm",
+    "startingBalance": 9300,
+    "income": 0,
+    "recurringExpenses": 3850,
+    "monthlyEvents": [
+      {
+        "month": 1,
+        "label": "Severance payout",
+        "amount": 5200
+      },
+      {
+        "month": 2,
+        "label": "Insurance premium",
+        "amount": -640
+      },
+      {
+        "month": 4,
+        "label": "Contract income starts",
+        "amount": 2400,
+        "repeats": true
+      }
+    ],
+    "autopilotActions": [
+      {
+        "id": "freeze_subscriptions",
+        "label": "Freeze subscriptions and gym",
+        "monthlyImpact": 310,
+        "startsMonth": 1
+      },
+      {
+        "id": "mortgage_relief",
+        "label": "Apply 3-month mortgage relief",
+        "monthlyImpact": 1200,
+        "startsMonth": 1,
+        "endsMonth": 3
+      },
+      {
+        "id": "emergency_budget",
+        "label": "Switch to emergency grocery budget",
+        "monthlyImpact": 420,
+        "startsMonth": 1
+      }
+    ],
+    "trace": [
+      "Payroll deposit disappeared after May with 87% confidence.",
+      "Severance payout creates a short runway, but fixed expenses remain high.",
+      "Subscription and mortgage categories have immediate deferral options."
+    ],
+    "suggestedQuestions": [
+      "When do I run out of cash?",
+      "Which action buys the most time?",
+      "What does month four look like?"
+    ]
+  },
+  {
+    "id": "wedding",
+    "title": "Wedding Spend Surge",
+    "customer": "Priya",
+    "event": {
+      "type": "marriage",
+      "label": "Wedding planning spend spike",
+      "confidence": 0.82,
+      "detectedMonth": "February"
+    },
+    "tone": "celebratory and grounded",
+    "startingBalance": 15700,
+    "income": 7800,
+    "recurringExpenses": 5100,
+    "monthlyEvents": [
+      {
+        "month": 1,
+        "label": "Venue deposit",
+        "amount": -4200
+      },
+      {
+        "month": 3,
+        "label": "Vendor payments",
+        "amount": -2600
+      },
+      {
+        "month": 5,
+        "label": "Final wedding balance",
+        "amount": -5200
+      }
+    ],
+    "autopilotActions": [
+      {
+        "id": "split_vendor_payments",
+        "label": "Split vendor payments across 4 months",
+        "monthlyImpact": 700,
+        "startsMonth": 1,
+        "endsMonth": 4
+      },
+      {
+        "id": "honeymoon_delay",
+        "label": "Delay honeymoon transfer",
+        "monthlyImpact": 600,
+        "startsMonth": 1,
+        "endsMonth": 6
+      },
+      {
+        "id": "joint_account",
+        "label": "Route partner contribution to joint buffer",
+        "monthlyImpact": 900,
+        "startsMonth": 2
+      }
+    ],
+    "trace": [
+      "Wedding merchant cluster increased sharply after February.",
+      "Known final balance is due around month five.",
+      "Partner contribution can be routed into a joint buffer before vendor peaks."
+    ],
+    "suggestedQuestions": [
+      "Can I still afford the wedding?",
+      "What happens in month five?",
+      "How calm is accepted-action future?"
+    ]
+  }
+]
